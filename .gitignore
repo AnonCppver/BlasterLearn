@@ -1,0 +1,10 @@
+.vs/*
+Binaries/*
+Build/*
+DerivedDataCache/*
+Intermediate/*
+Saved/*
+Plugins/MultiplayerSessions/Intermediate/*
+Plugins/MultiplayerSessions/Binaries/*
+Content/StarterContent/*
+note.txt
