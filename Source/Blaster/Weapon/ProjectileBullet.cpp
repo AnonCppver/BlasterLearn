@@ -4,6 +4,7 @@
 #include "Components/BoxComponent.h"
 #include "Sound/SoundCue.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 
 void AProjectileBullet::BeginPlay()
 {

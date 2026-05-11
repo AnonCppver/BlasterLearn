@@ -4,7 +4,9 @@
 #include "ProjectileWeapon.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Projectile.h"
+#include "Components/BoxComponent.h"
 
+// 服务器产生子弹
 void AProjectileWeapon::Fire(const FVector& HitTarget)
 {
 	Super::Fire(HitTarget);
@@ -26,12 +28,20 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 			UWorld* World = GetWorld();
 			if (World)
 			{
-				World->SpawnActor<AProjectile>(
+				AProjectile* SpawnedProjectile = World->SpawnActor<AProjectile>(
 					ProjectileClass,
 					SocketTransform.GetLocation(),
 					TargetRotation,
 					SpawnParams
 				);
+				if (SpawnedProjectile)
+				{
+					UBoxComponent* CollisionBox = SpawnedProjectile->GetCollisionBox();
+					if (CollisionBox)
+					{
+						CollisionBox->IgnoreActorWhenMoving(InstigatorPawn, true);
+					}
+				}
 			}
 		}
 	}

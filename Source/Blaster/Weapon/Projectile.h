@@ -36,14 +36,15 @@ protected:
 
 	UPROPERTY()
 	class UParticleSystemComponent* TracerComponent;
-private:
 
 	UPROPERTY(VisibleAnywhere)
 	class UProjectileMovementComponent* ProjectileMovementComponent;
 
+private:
 	UPROPERTY(EditAnywhere)
 	UParticleSystem* Tracer;
 
 public:
+	FORCEINLINE UBoxComponent* GetCollisionBox() const { return CollisionBox; }
 
 };

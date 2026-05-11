@@ -17,6 +17,7 @@ AWeapon::AWeapon()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	bReplicates = true;
+	SetReplicateMovement(true); // 保持武器在客户端和服务器之间同步位置，否则pickup可能错误
 
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 	SetRootComponent(WeaponMesh);
