@@ -34,11 +34,11 @@ void AProjectileBullet::OnHit(
 			if (OwnerController)
 			{
 				UGameplayStatics::ApplyDamage(
-					OtherActor,
+					OtherActor,// 受击actor
 					Damage,
-					OwnerController,
-					this,
-					UDamageType::StaticClass()
+					OwnerController,// 造成伤害的controller
+					this,// 造成伤害的actor
+					UDamageType::StaticClass()// 伤害类型
 				);
 			}
 		}

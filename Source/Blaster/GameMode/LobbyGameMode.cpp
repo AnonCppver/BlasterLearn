@@ -34,7 +34,7 @@ void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
 
 				//FString MatchType = Subsystem->DesiredMatchType;
 				FString MatchType = TEXT("FreeShooting");
-				World->ServerTravel(FString("/Game/Maps/Demo?listen"));
+				World->ServerTravel(FString("/Game/LowerSector_Mod/Maps/LowerSector_Mod?listen"));
 			}
 		}
 	}

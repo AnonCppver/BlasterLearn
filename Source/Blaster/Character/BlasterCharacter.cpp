@@ -20,6 +20,9 @@ ABlasterCharacter::ABlasterCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	GetMesh()->VisibilityBasedAnimTickOption =
+		EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(GetMesh());
 	CameraBoom->TargetArmLength = 600.f;
@@ -221,6 +224,7 @@ void ABlasterCharacter::PlayHitReactMontage()
 	if (AnimInstance && HitReactMontage)
 	{
 		AnimInstance->Montage_Play(HitReactMontage);
+
 		FName SectionName("FromFront");
 		AnimInstance->Montage_JumpToSection(SectionName);
 	}
@@ -359,7 +363,7 @@ void ABlasterCharacter::AimOffset(float DeltaTime)
 	float Speed = Velocity.Size();
 	bool bIsInAir = GetCharacterMovement()->IsFalling();
 
-	if (Speed == 0.f && !bIsInAir) // standing still, not jumping
+	if (Speed == 0.f && !bIsInAir&&!IsAiming()) // standing still, not jumping
 	{
 		FRotator CurrentAimRotation =
 			FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
@@ -382,7 +386,7 @@ void ABlasterCharacter::AimOffset(float DeltaTime)
 		TurnInPlace(DeltaTime);
 	}
 
-	if (Speed > 0.f || bIsInAir) // running, or jumping
+	if (Speed > 0.f || bIsInAir|| IsAiming()) // running, or jumping
 	{
 		StartingAimRotation =
 			FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
@@ -577,7 +581,7 @@ void ABlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const 
 	UpdateHUDHealth();
 	PlayHitReactMontage();
 
-	if (Health == 0.f)
+	if (Health <= 0.f)
 	{
 		ABlasterGameMode* BlasterGameMode = GetWorld()->GetAuthGameMode<ABlasterGameMode>();
 		if (BlasterGameMode)
@@ -634,6 +638,16 @@ void ABlasterCharacter::MulticastElim_Implementation()
 	// Disable collision
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	// Disable sniper scope
+	bool bHideSniperScope = IsLocallyControlled() &&
+		Combat &&
+		Combat->bAiming &&
+		Combat->EquippedWeapon &&
+		Combat->EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle;
+	if (bHideSniperScope)
+	{
+		ShowSniperScopeWidget(false);
+	}
 }
 
 void ABlasterCharacter::ElimTimerFinished()
@@ -683,6 +697,12 @@ void ABlasterCharacter::PlayReloadMontage()
 			SectionName = FName("Rifle");
 			break;
 		case EWeaponType::EWT_RocketLauncher:
+			SectionName = FName("Rifle");
+			break;
+		case EWeaponType::EWT_Shotgun:
+			SectionName = FName("Shotgun");
+			break;
+		case EWeaponType::EWT_SniperRifle:
 			SectionName = FName("Rifle");
 			break;
 		}
