@@ -6,6 +6,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Blaster/Weapon/Weapon.h"
 #include "Blaster/BlasterComponent/CombatComponent.h"
+#include "Blaster/BlasterComponent/BuffComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "BlasterAnimInstance.h"
@@ -15,13 +16,11 @@
 #include "TimerManager.h"
 #include "Blaster/PlayerState/BlasterPlayerState.h"
 #include "Blaster/Weapon/WeaponTypes.h"
+#include "Kismet/GameplayStatics.h"
 
 ABlasterCharacter::ABlasterCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
-	GetMesh()->VisibilityBasedAnimTickOption =
-		EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(GetMesh());
@@ -40,6 +39,9 @@ ABlasterCharacter::ABlasterCharacter()
 
 	Combat = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
 	Combat->SetIsReplicated(true);
+
+	Buff = CreateDefaultSubobject<UBuffComponent>(TEXT("BuffComponent"));
+	Buff->SetIsReplicated(true);
 
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
 
@@ -84,6 +86,7 @@ void ABlasterCharacter::GetLifetimeReplicatedProps(
 		COND_OwnerOnly
 	);// Actor->GetOwner()
 	DOREPLIFETIME(ABlasterCharacter, Health);
+	DOREPLIFETIME(ABlasterCharacter, Shield);
 	DOREPLIFETIME(ABlasterCharacter, bDisableGameplay);
 }
 
@@ -92,7 +95,10 @@ void ABlasterCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	BlasterPlayerController = Cast<ABlasterPlayerController>(Controller);
+	SpawDefaultWeapon();
 	UpdateHUDHealth();
+	UpdateHUDShield();
+	UpdateHUDAmmo();
 	if (HasAuthority())
 	{
 		OnTakeAnyDamage.AddDynamic(this, &ABlasterCharacter::ReceiveDamage);
@@ -214,6 +220,11 @@ void ABlasterCharacter::PostInitializeComponents()
 	{
 		Combat->Character = this;
 	}
+
+	if (Buff)
+	{
+		Buff->Character = this;
+	}
 }
 
 void ABlasterCharacter::PlayHitReactMontage()
@@ -302,15 +313,7 @@ void ABlasterCharacter::EquipButtonPressed()
 	if (bDisableGameplay) return;
 	if (Combat)
 	{
-		// 如果是客户端调用，使用 RPC 请求服务器执行装备逻辑
-		if (HasAuthority())
-		{
-			Combat->EquipWeapon(OverlappingWeapon);
-		}
-		else
-		{
 			ServerEquipButtonPressed();
-		}
 	}
 }
 
@@ -566,10 +569,19 @@ void ABlasterCharacter::HideCameraIfCharacterClose()
 	}
 }
 
-void ABlasterCharacter::OnRep_Health()
+void ABlasterCharacter::OnRep_Health(float LastHealth)
 {
 	UpdateHUDHealth();
-	if (Health > 0.f)
+	if (Health > 0.f&& Health < LastHealth)
+	{
+		PlayHitReactMontage();
+	}
+}
+
+void ABlasterCharacter::OnRep_Shield(float LastShield)
+{
+	UpdateHUDShield();
+	if (Shield < LastShield)
 	{
 		PlayHitReactMontage();
 	}
@@ -577,7 +589,24 @@ void ABlasterCharacter::OnRep_Health()
 
 void ABlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatorController, AActor* DamageCauser)
 {
-	Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
+	float DamageToHealth = Damage;
+	if (Shield > 0.f)
+	{
+		if (Shield >= Damage)
+		{
+			Shield = FMath::Clamp(Shield - Damage, 0.f, MaxShield);
+			DamageToHealth = 0.f;
+		}
+		else
+		{
+			Shield = 0.f;
+			DamageToHealth = FMath::Clamp(DamageToHealth - Shield, 0.f, Damage);
+		}
+	}
+
+	Health = FMath::Clamp(Health - DamageToHealth, 0.f, MaxHealth);
+
+	UpdateHUDShield();
 	UpdateHUDHealth();
 	PlayHitReactMontage();
 
@@ -602,11 +631,37 @@ void ABlasterCharacter::UpdateHUDHealth()
 	}
 }
 
+void ABlasterCharacter::UpdateHUDShield()
+{
+	BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
+	if (BlasterPlayerController)
+	{
+		BlasterPlayerController->SetHUDShield(Shield, MaxShield);
+	}
+}
+
+void ABlasterCharacter::UpdateHUDAmmo()
+{
+	BlasterPlayerController = BlasterPlayerController == nullptr ? Cast<ABlasterPlayerController>(Controller) : BlasterPlayerController;
+	if (BlasterPlayerController && Combat && Combat->EquippedWeapon)
+	{
+		BlasterPlayerController->SetHUDCarriedAmmo(Combat->CarriedAmmo);
+		BlasterPlayerController->SetHUDWeaponAmmo(Combat->EquippedWeapon->GetAmmo());
+	}
+}
+
 void ABlasterCharacter::Elim()
 {
 	if (Combat && Combat->EquippedWeapon)
 	{
-		Combat->EquippedWeapon->Dropped();
+		if (Combat->EquippedWeapon->bDestroyWeapon)
+		{
+			Combat->EquippedWeapon->Destroy();
+		}
+		else
+		{
+			Combat->EquippedWeapon->Dropped();
+		}
 	}
 	MulticastElim();
 	GetWorldTimerManager().SetTimer(
@@ -705,6 +760,9 @@ void ABlasterCharacter::PlayReloadMontage()
 		case EWeaponType::EWT_SniperRifle:
 			SectionName = FName("Rifle");
 			break;
+		case EWeaponType::EWT_Pistol:
+			SectionName = FName("Rifle");
+			break;
 		}
 
 		AnimInstance->Montage_JumpToSection(SectionName);
@@ -714,4 +772,19 @@ void ABlasterCharacter::PlayReloadMontage()
 ECombatState ABlasterCharacter::GetCombatState()const 
 {
 	 return Combat == nullptr ? ECombatState::ECS_MAX : Combat->CombatState;
+}
+
+void ABlasterCharacter::SpawDefaultWeapon()
+{
+	ABlasterGameMode* BlasterGameMode = Cast<ABlasterGameMode>(UGameplayStatics::GetGameMode(this));
+	UWorld* World = GetWorld();
+	if (BlasterGameMode && World && !bElimmed && DefaultWeaponClass)
+	{
+		AWeapon* StartingWeapon = World->SpawnActor<AWeapon>(DefaultWeaponClass);
+		StartingWeapon->bDestroyWeapon = true;
+		if (Combat)
+		{
+			Combat->EquipWeapon(StartingWeapon);
+		}
+	}
 }

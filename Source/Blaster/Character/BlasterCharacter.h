@@ -31,6 +31,11 @@ public:
 	bool bDisableGameplay = false;
 	UFUNCTION(BlueprintImplementableEvent)
 	void ShowSniperScopeWidget(bool bShowScope);
+	void UpdateHUDHealth();
+	void UpdateHUDShield();
+	void UpdateHUDAmmo();
+
+	void SpawDefaultWeapon();
 
 protected:
 	virtual void BeginPlay() override;
@@ -50,7 +55,6 @@ protected:
 	void ReloadButtonPressed();
 	UFUNCTION()
 	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
-	void UpdateHUDHealth();
 	// Poll for any relelvant classes and initialize our HUD
 	void PollInit();
 	void RotateInPlace(float DeltaTime);
@@ -73,6 +77,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCombatComponent* Combat;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UBuffComponent* Buff;
 
 	UFUNCTION(Server, Reliable)
 	void ServerEquipButtonPressed();
@@ -103,11 +110,24 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Player Stats")
 	float MaxHealth = 100.f;
 
-	UPROPERTY(ReplicatedUsing = OnRep_Health, VisibleAnywhere, Category = "Player Stats")
+	UPROPERTY(ReplicatedUsing = OnRep_Health, EditAnywhere, Category = "Player Stats")
 	float Health = 100.f;
 
 	UFUNCTION()
-	void OnRep_Health();
+	void OnRep_Health(float LastHealth);
+
+	/**
+	* Player shield
+	*/
+
+	UPROPERTY(EditAnywhere, Category = "Player Stats")
+	float MaxShield = 50.f;
+
+	UPROPERTY(ReplicatedUsing = OnRep_Shield, EditAnywhere, Category = "Player Stats")
+	float Shield = 0.f;
+
+	UFUNCTION()
+	void OnRep_Shield(float LastShield);
 
 	UPROPERTY()
 	class ABlasterPlayerController* BlasterPlayerController;
@@ -136,6 +156,13 @@ private:
 	UPROPERTY()
 	class ABlasterPlayerState* BlasterPlayerState;
 
+	/**
+	* Default weapon
+	*/
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AWeapon> DefaultWeaponClass;
+
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);
 	bool IsWeaponEquipped();
@@ -148,9 +175,14 @@ public:
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	FORCEINLINE bool IsElimmed() const { return bElimmed; }
 	FORCEINLINE float GetHealth() const { return Health; }
+	FORCEINLINE void SetHealth(float Amount) { Health = std::min(Amount,MaxHealth); }
 	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
+	FORCEINLINE float GetShield() const { return Shield; }
+	FORCEINLINE void SetShield(float Amount) { Shield = std::min(Amount,MaxShield); }
+	FORCEINLINE float GetMaxShield() const { return MaxShield; }
 	ECombatState GetCombatState() const;
 	FORCEINLINE UCombatComponent* GetCombat() const { return Combat; }
+	FORCEINLINE UBuffComponent* GetBuff() const { return Buff; }
 	FORCEINLINE bool GetDisableGameplay() const { return bDisableGameplay; }
 	FORCEINLINE UAnimMontage* GetReloadMontage() const { return ReloadMontage; }
 };

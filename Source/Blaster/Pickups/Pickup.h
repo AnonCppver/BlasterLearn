@@ -29,16 +29,20 @@ protected:
 	UPROPERTY(EditAnywhere)
 	float BaseTurnRate = 45.f;
 
+	UPROPERTY(EditAnywhere)
+	class USoundCue* PickupSound;
+
 private:
 
 	UPROPERTY(EditAnywhere)
 	class USphereComponent* OverlapSphere;
 
 	UPROPERTY(EditAnywhere)
-	class USoundCue* PickupSound;
-
-	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* PickupMesh;
+
+	FTimerHandle BindOverlapTimer;
+	float BindOverlapTime = 0.25f;
+	void BindOverlapTimerFinished();
 
 public:
 
