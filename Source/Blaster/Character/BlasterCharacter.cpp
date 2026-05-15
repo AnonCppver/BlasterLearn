@@ -321,7 +321,15 @@ void ABlasterCharacter::ServerEquipButtonPressed_Implementation()
 {
 	if (Combat)
 	{
-		Combat->EquipWeapon(OverlappingWeapon);
+		if (OverlappingWeapon)
+		{
+			Combat->EquipWeapon(OverlappingWeapon);
+		}
+		else if (Combat->ShouldSwapWeapons())
+		{
+			Combat->SwapWeapons();
+		}
+		// TODO: 如果正在换弹，应该广播JumpToReloadEnd
 	}
 }
 
@@ -572,6 +580,7 @@ void ABlasterCharacter::HideCameraIfCharacterClose()
 void ABlasterCharacter::OnRep_Health(float LastHealth)
 {
 	UpdateHUDHealth();
+	// 客户端死亡动画会被受击动画卡掉
 	if (Health > 0.f&& Health < LastHealth)
 	{
 		PlayHitReactMontage();
@@ -581,7 +590,7 @@ void ABlasterCharacter::OnRep_Health(float LastHealth)
 void ABlasterCharacter::OnRep_Shield(float LastShield)
 {
 	UpdateHUDShield();
-	if (Shield < LastShield)
+	if (Health>0.f &&Shield < LastShield)
 	{
 		PlayHitReactMontage();
 	}
@@ -652,15 +661,15 @@ void ABlasterCharacter::UpdateHUDAmmo()
 
 void ABlasterCharacter::Elim()
 {
-	if (Combat && Combat->EquippedWeapon)
+	if (Combat)
 	{
-		if (Combat->EquippedWeapon->bDestroyWeapon)
-		{
-			Combat->EquippedWeapon->Destroy();
-		}
-		else
+		if(Combat->EquippedWeapon)
 		{
 			Combat->EquippedWeapon->Dropped();
+		}
+		if(Combat->SecondaryWeapon)
+		{
+			Combat->SecondaryWeapon->Dropped();
 		}
 	}
 	MulticastElim();
