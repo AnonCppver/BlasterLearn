@@ -1,114 +1,49 @@
 #include "ProjectileBullet.h"
 #include "Kismet/GameplayStatics.h"
-#include "GameFramework/Character.h"
-#include "Components/BoxComponent.h"
-#include "Sound/SoundCue.h"
-#include "Particles/ParticleSystemComponent.h"
+#include "Blaster/Character/BlasterCharacter.h"
+#include "Blaster/PlayerController/BlasterPlayerController.h"
+#include "Blaster/BlasterComponent/LagCompensationComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
 AProjectileBullet::AProjectileBullet()
 {
-	PrimaryActorTick.bCanEverTick = true;
-
 	ProjectileMovementComponent->InitialSpeed = InitialSpeed;
 	ProjectileMovementComponent->MaxSpeed = InitialSpeed;
+}
+
+void AProjectileBullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	ABlasterCharacter* OwnerCharacter = Cast<ABlasterCharacter>(GetOwner());
+	ABlasterCharacter* HitCharacter = Cast<ABlasterCharacter>(OtherActor);
+	ABlasterPlayerController* OwnerController = OwnerCharacter ? Cast<ABlasterPlayerController>(OwnerCharacter->Controller) : nullptr;
+
+	const bool bWillDirectDamage = OwnerCharacter && OwnerController && HasAuthority() && (!bUseServerSideRewind || OwnerCharacter->IsLocallyControlled());
+	const bool bWillSendSSR = OwnerCharacter && OwnerController && bUseServerSideRewind && OwnerCharacter->GetLagCompensation() && OwnerCharacter->IsLocallyControlled() && HitCharacter;
+
+	if (OwnerCharacter && OwnerController)
+	{
+		if (OwnerCharacter->HasAuthority() && OwnerCharacter->IsLocallyControlled())
+		{
+			UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerController, this, UDamageType::StaticClass());
+			Super::OnHit(HitComp, OtherActor, OtherComp, NormalImpulse, Hit);
+			return;
+		}
+		if (bUseServerSideRewind && OwnerCharacter->GetLagCompensation() && OwnerCharacter->IsLocallyControlled() && HitCharacter)
+		{
+			const float HitTime = OwnerController->GetServerTime() - OwnerController->SingleTripTime;
+			OwnerCharacter->GetLagCompensation()->ProjectileServerScoreRequest(
+				HitCharacter,
+				TraceStart,
+				InitialVelocity,
+				HitTime
+			);
+		}
+	}
+
+	Super::OnHit(HitComp, OtherActor, OtherComp, NormalImpulse, Hit);
 }
 
 void AProjectileBullet::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if (!HasAuthority())
-	{
-		CollisionBox->OnComponentHit.AddDynamic(this, &AProjectileBullet::OnHit);
-	}
-
-	FPredictProjectilePathParams PathParams;
-	PathParams.bTraceWithChannel = true;
-	PathParams.bTraceWithCollision = true;
-	PathParams.DrawDebugTime = 5.f;
-	PathParams.DrawDebugType = EDrawDebugTrace::ForDuration;
-	PathParams.LaunchVelocity = GetActorForwardVector() * InitialSpeed;
-	PathParams.MaxSimTime = 4.f;
-	PathParams.ProjectileRadius = 5.f;
-	PathParams.SimFrequency = 30.f;
-	PathParams.StartLocation = GetActorLocation();
-	PathParams.TraceChannel = ECollisionChannel::ECC_Visibility;
-	PathParams.ActorsToIgnore.Add(this);
-
-	FPredictProjectilePathResult PathResult;
-
-	UGameplayStatics::PredictProjectilePath(this, PathParams, PathResult);
-}
-
-void AProjectileBullet::OnHit(
-	UPrimitiveComponent* HitComp,
-	AActor* OtherActor,
-	UPrimitiveComponent* OtherComp,
-	FVector NormalImpulse,
-	const FHitResult& Hit
-)
-{
-	// 伤害只允许服务端执行
-	if (HasAuthority())
-	{
-		ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
-		if (OwnerCharacter)
-		{
-			AController* OwnerController = OwnerCharacter->Controller;
-			if (OwnerController)
-			{
-				UGameplayStatics::ApplyDamage(
-					OtherActor,// 受击actor
-					Damage,
-					OwnerController,// 造成伤害的controller
-					this,// 造成伤害的actor
-					UDamageType::StaticClass()// 伤害类型
-				);
-			}
-		}
-	}
-
-	if (ImpactParticles)
-	{
-		UGameplayStatics::SpawnEmitterAtLocation(
-			GetWorld(),
-			ImpactParticles,
-			Hit.ImpactPoint,
-			Hit.ImpactNormal.Rotation()
-		);
-	}
-
-	if (ImpactSound)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation());
-	}
-
-	if (CollisionBox)
-	{
-		CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	}
-
-	if (TracerComponent)
-	{
-		TracerComponent->Deactivate();
-		TracerComponent->SetVisibility(false);
-	}
-
-	GetWorldTimerManager().SetTimer(
-		DestroyTimer,
-		this,
-		&AProjectileBullet::DestroyTimerFinished,
-		DestroyTime
-	);
-}
-
-void AProjectileBullet::DestroyTimerFinished()
-{
-	Destroy();
-}
-
-void AProjectileBullet::Destroyed()
-{
-
 }

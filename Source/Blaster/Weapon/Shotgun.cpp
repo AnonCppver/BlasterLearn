@@ -23,7 +23,7 @@ void AShotgun::FireShotgun(const TArray<FVector_NetQuantize>& HitTargets)
 
 		// Maps hit character to number of times hit
 		TMap<ABlasterCharacter*, uint32> HitMap;
-		for (FVector_NetQuantize HitTarget : HitTargets)
+		for (const FVector_NetQuantize &HitTarget : HitTargets)
 		{
 			FHitResult FireHit;
 			WeaponTraceHit(Start, HitTarget, FireHit);
@@ -80,11 +80,11 @@ void AShotgun::FireShotgun(const TArray<FVector_NetQuantize>& HitTargets)
 				HitCharacters.Add(HitPair.Key);
 			}
 		}
-		if (!HasAuthority() && bUseServerSideRewind)
+		if (!HasAuthority() && bUseServerSideRewind && OwnerPawn->IsLocallyControlled())
 		{
 			BlasterOwnerCharacter = BlasterOwnerCharacter == nullptr ? Cast<ABlasterCharacter>(OwnerPawn) : BlasterOwnerCharacter;
 			BlasterOwnerController = BlasterOwnerController == nullptr ? Cast<ABlasterPlayerController>(InstigatorController) : BlasterOwnerController;
-			if (BlasterOwnerController && BlasterOwnerCharacter && BlasterOwnerCharacter->GetLagCompensation() && BlasterOwnerCharacter->IsLocallyControlled())
+			if (BlasterOwnerController && BlasterOwnerCharacter && BlasterOwnerCharacter->GetLagCompensation())
 			{
 				BlasterOwnerCharacter->GetLagCompensation()->ShotgunServerScoreRequest(
 					HitCharacters,

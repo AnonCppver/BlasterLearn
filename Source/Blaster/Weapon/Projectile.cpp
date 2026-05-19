@@ -14,7 +14,6 @@
 AProjectile::AProjectile()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	bReplicates = true;
 
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
 	SetRootComponent(CollisionBox);
@@ -44,10 +43,7 @@ void AProjectile::BeginPlay()
 		);
 	}
 
-	if (HasAuthority())
-	{
-		CollisionBox->OnComponentHit.AddDynamic(this, &AProjectile::OnHit);
-	}
+	CollisionBox->OnComponentHit.AddDynamic(this, &AProjectile::OnHit);
 }
 
 void AProjectile::OnHit(

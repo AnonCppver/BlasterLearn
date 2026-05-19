@@ -10,6 +10,7 @@
 
 AProjectileRocket::AProjectileRocket()
 {
+	bReplicates = true;
 	RocketMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Rocket Mesh"));
 	RocketMesh->SetupAttachment(RootComponent);
 	RocketMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
