@@ -29,6 +29,8 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientPlayEliminationSound();
 
+	float SingleTripTime = 0.f;
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;

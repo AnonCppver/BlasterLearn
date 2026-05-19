@@ -17,6 +17,8 @@
 #include "Blaster/PlayerState/BlasterPlayerState.h"
 #include "Blaster/Weapon/WeaponTypes.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/BoxComponent.h"
+#include "Blaster/BlasterComponent/LagCompensationComponent.h"
 
 ABlasterCharacter::ABlasterCharacter()
 {
@@ -42,6 +44,8 @@ ABlasterCharacter::ABlasterCharacter()
 
 	Buff = CreateDefaultSubobject<UBuffComponent>(TEXT("BuffComponent"));
 	Buff->SetIsReplicated(true);
+
+	LagCompensation = CreateDefaultSubobject<ULagCompensationComponent>(TEXT("LagCompensation"));
 
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
 
@@ -70,6 +74,81 @@ ABlasterCharacter::ABlasterCharacter()
 	// 提高网络同步频率，减少角色旋转/瞄准等状态同步延迟
 	NetUpdateFrequency = 66.f;
 	MinNetUpdateFrequency = 33.f;
+
+	Head = CreateDefaultSubobject<UBoxComponent>(TEXT("Head"));
+	Head->SetupAttachment(GetMesh(), FName("Head"));
+	HitCollisionBoxes.Add(FName("Head"), Head);
+
+	Hips = CreateDefaultSubobject<UBoxComponent>(TEXT("Hips"));
+	Hips->SetupAttachment(GetMesh(), FName("Hips"));
+	HitCollisionBoxes.Add(FName("Hips"), Hips);
+
+	Spine1 = CreateDefaultSubobject<UBoxComponent>(TEXT("Spine1"));
+	Spine1->SetupAttachment(GetMesh(), FName("Spine1"));
+	HitCollisionBoxes.Add(FName("Spine1"), Spine1);
+
+	Spine2 = CreateDefaultSubobject<UBoxComponent>(TEXT("Spine2"));
+	Spine2->SetupAttachment(GetMesh(), FName("Spine2"));
+	HitCollisionBoxes.Add(FName("Spine2"), Spine2);
+
+	LeftArm = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftArm"));
+	LeftArm->SetupAttachment(GetMesh(), FName("LeftArm"));
+	HitCollisionBoxes.Add(FName("LeftArm"), LeftArm);
+
+	RightArm = CreateDefaultSubobject<UBoxComponent>(TEXT("RightArm"));
+	RightArm->SetupAttachment(GetMesh(), FName("RightArm"));
+	HitCollisionBoxes.Add(FName("RightArm"), RightArm);
+
+	LeftForeArm = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftForeArm"));
+	LeftForeArm->SetupAttachment(GetMesh(), FName("LeftForeArm"));
+	HitCollisionBoxes.Add(FName("LeftForeArm"), LeftForeArm);
+
+	RightForeArm = CreateDefaultSubobject<UBoxComponent>(TEXT("RightForeArm"));
+	RightForeArm->SetupAttachment(GetMesh(), FName("RightForeArm"));
+	HitCollisionBoxes.Add(FName("RightForeArm"), RightForeArm);
+
+	LeftHand = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftHand"));
+	LeftHand->SetupAttachment(GetMesh(), FName("LeftHand"));
+	HitCollisionBoxes.Add(FName("LeftHand"), LeftHand);
+
+	RightHand = CreateDefaultSubobject<UBoxComponent>(TEXT("RightHand"));
+	RightHand->SetupAttachment(GetMesh(), FName("RightHand"));
+	HitCollisionBoxes.Add(FName("RightHand"), RightHand);
+
+	LeftUpLeg = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftUpLeg"));
+	LeftUpLeg->SetupAttachment(GetMesh(), FName("LeftUpLeg"));
+	HitCollisionBoxes.Add(FName("LeftUpLeg"), LeftUpLeg);
+
+	RightUpLeg = CreateDefaultSubobject<UBoxComponent>(TEXT("RightUpLeg"));
+	RightUpLeg->SetupAttachment(GetMesh(), FName("RightUpLeg"));
+	HitCollisionBoxes.Add(FName("RightUpLeg"), RightUpLeg);
+
+	LeftLeg = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftLeg"));
+	LeftLeg->SetupAttachment(GetMesh(), FName("LeftLeg"));
+	HitCollisionBoxes.Add(FName("LeftLeg"), LeftLeg);
+
+	RightLeg = CreateDefaultSubobject<UBoxComponent>(TEXT("RightLeg"));
+	RightLeg->SetupAttachment(GetMesh(), FName("RightLeg"));
+	HitCollisionBoxes.Add(FName("RightLeg"), RightLeg);
+
+	LeftFoot = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftFoot"));
+	LeftFoot->SetupAttachment(GetMesh(), FName("LeftFoot"));
+	HitCollisionBoxes.Add(FName("LeftFoot"), LeftFoot);
+
+	RightFoot = CreateDefaultSubobject<UBoxComponent>(TEXT("RightFoot"));
+	RightFoot->SetupAttachment(GetMesh(), FName("RightFoot"));
+	HitCollisionBoxes.Add(FName("RightFoot"), RightFoot);
+
+	for (auto& Box : HitCollisionBoxes)
+	{
+		if (Box.Value)
+		{
+			Box.Value->SetCollisionObjectType(ECC_HitBox);
+			Box.Value->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+			Box.Value->SetCollisionResponseToChannel(ECC_HitBox, ECollisionResponse::ECR_Block);
+			Box.Value->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		}
+	}
 }
 
 void ABlasterCharacter::GetLifetimeReplicatedProps(
@@ -225,6 +304,15 @@ void ABlasterCharacter::PostInitializeComponents()
 	{
 		Buff->Character = this;
 	}
+
+	if (LagCompensation)
+	{
+		LagCompensation->Character = this;
+		if (Controller)
+		{
+			LagCompensation->Controller = Cast<ABlasterPlayerController>(Controller);
+		}
+	}
 }
 
 void ABlasterCharacter::PlayHitReactMontage()
@@ -313,7 +401,7 @@ void ABlasterCharacter::EquipButtonPressed()
 	if (bDisableGameplay) return;
 	if (Combat)
 	{
-			ServerEquipButtonPressed();
+		ServerEquipButtonPressed();
 	}
 }
 
@@ -504,8 +592,6 @@ void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 		OverlappingWeapon->ShowPickupWidget(false);
 	}
 
-	// 对于发生碰撞的客户端，只有这里被执行。
-	// 进入 weapon 时赋值为 Weapon，离开时赋值为 nullptr
 	OverlappingWeapon = Weapon;
 
 	if (OverlappingWeapon&&IsLocallyControlled())

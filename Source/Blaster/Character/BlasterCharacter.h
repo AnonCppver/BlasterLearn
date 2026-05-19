@@ -37,6 +37,9 @@ public:
 
 	void SpawDefaultWeapon();
 
+	UPROPERTY()
+	TMap<FName,class UBoxComponent*> HitCollisionBoxes;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -80,6 +83,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UBuffComponent* Buff;
+
+	UPROPERTY(VisibleAnywhere)
+	class ULagCompensationComponent* LagCompensation;
 
 	UFUNCTION(Server, Reliable)
 	void ServerEquipButtonPressed();
@@ -163,6 +169,58 @@ private:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AWeapon> DefaultWeaponClass;
 
+	/**
+	* Hit boxes used for server-side rewind
+	*/
+
+	UPROPERTY(EditAnywhere)
+	class UBoxComponent* Head;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* Hips;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* Spine1;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* Spine2;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* LeftArm;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* RightArm;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* LeftForeArm;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* RightForeArm;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* LeftHand;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* RightHand;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* LeftUpLeg;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* RightUpLeg;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* LeftLeg;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* RightLeg;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* LeftFoot;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* RightFoot;
+
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);
 	bool IsWeaponEquipped();
@@ -185,4 +243,5 @@ public:
 	FORCEINLINE UBuffComponent* GetBuff() const { return Buff; }
 	FORCEINLINE bool GetDisableGameplay() const { return bDisableGameplay; }
 	FORCEINLINE UAnimMontage* GetReloadMontage() const { return ReloadMontage; }
+	FORCEINLINE ULagCompensationComponent* GetLagCompensation() const { return LagCompensation; }
 };
