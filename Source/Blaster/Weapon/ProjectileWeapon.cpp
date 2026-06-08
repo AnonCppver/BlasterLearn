@@ -30,12 +30,12 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 		{
 			if (InstigatorPawn->HasAuthority()) // server
 			{
-				if (InstigatorPawn->IsLocallyControlled()) // server, host - use replicated projectile
+				if (InstigatorPawn->IsLocallyControlled()) // 服务端响应服务端角色，不需要复制，且不使用SSR
 				{
 					SpawnedProjectile = World->SpawnActor<AProjectile>(ServerSideRewindProjectileClass, SocketTransform.GetLocation(), TargetRotation, SpawnParams);
 					if (SpawnedProjectile) SpawnedProjectile->bUseServerSideRewind = false;
 				}
-				else // server, not locally controlled - spawn non-replicated projectile, SSR
+				else // 服务端响应客户端角色，不需要复制，但使用SSR
 				{
 					SpawnedProjectile = World->SpawnActor<AProjectile>(ServerSideRewindProjectileClass, SocketTransform.GetLocation(), TargetRotation, SpawnParams);
 					if (SpawnedProjectile) SpawnedProjectile->bUseServerSideRewind = true;
@@ -43,7 +43,7 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 			}
 			else // client, using SSR
 			{
-				if (InstigatorPawn->IsLocallyControlled()) // client, locally controlled - spawn non-replicated projectile, use SSR
+				if (InstigatorPawn->IsLocallyControlled()) // 客户端响应本地角色，不复制，使用SSR
 				{
 					SpawnedProjectile = World->SpawnActor<AProjectile>(ServerSideRewindProjectileClass, SocketTransform.GetLocation(), TargetRotation, SpawnParams);
 					if (SpawnedProjectile)
@@ -53,14 +53,14 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 						SpawnedProjectile->InitialVelocity = SpawnedProjectile->GetActorForwardVector() * SpawnedProjectile->InitialSpeed;
 					}
 				}
-				else // client, not locally controlled - spawn non-replicated projectile, no SSR
+				else // 客户端响应非本地角色，只需要动画效果
 				{
 					SpawnedProjectile = World->SpawnActor<AProjectile>(ServerSideRewindProjectileClass, SocketTransform.GetLocation(), TargetRotation, SpawnParams);
 					if (SpawnedProjectile) SpawnedProjectile->bUseServerSideRewind = false;
 				}
 			}
 		}
-		else // weapon not using SSR
+		else // 不需要延迟补偿，直接生成复制的子弹
 		{
 			if (InstigatorPawn->HasAuthority())
 			{

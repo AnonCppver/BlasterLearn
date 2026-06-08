@@ -66,6 +66,7 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AWeapon, WeaponState);
+	DOREPLIFETIME(AWeapon, Ammo);
 }
 
 void AWeapon::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -111,6 +112,28 @@ void AWeapon::OnWeaponStateSet()
 void AWeapon::OnRep_WeaponState()
 {
 	OnWeaponStateSet();
+}
+
+void AWeapon::OnRep_Ammo()
+{
+	BlasterOwnerCharacter = BlasterOwnerCharacter == nullptr ? Cast<ABlasterCharacter>(GetOwner()) : BlasterOwnerCharacter;
+	UE_LOG(LogTemp, Warning, TEXT("[ShotReload 05 OnRepAmmo] Weapon=%s Owner=%s Auth=%d NetMode=%d Ammo=%d Type=%d"),
+		*GetNameSafe(this),
+		*GetNameSafe(BlasterOwnerCharacter),
+		HasAuthority(),
+		static_cast<int32>(GetNetMode()),
+		Ammo,
+		static_cast<int32>(WeaponType));
+	if (BlasterOwnerCharacter &&
+		BlasterOwnerCharacter->GetCombat() &&
+		WeaponType == EWeaponType::EWT_Shotgun &&
+		BlasterOwnerCharacter->GetCombatState() == ECombatState::ECS_Reloading &&
+		IsFull())
+	{
+		BlasterOwnerCharacter->GetCombat()->JumpToShotgunEnd();
+	}
+
+	SetHUDAmmo();
 }
 
 void AWeapon::OnEquipped()
@@ -207,33 +230,15 @@ void AWeapon::Dropped()
 	BlasterOwnerController = nullptr;
 }
 
-void AWeapon::ClientUpdateAmmo_Implementation(int32 ServerAmmo)
-{
-	if (HasAuthority()) return;
-	Ammo = ServerAmmo;
-	--Sequence;
-	Ammo -= Sequence;
-	SetHUDAmmo();
-}
-
-void AWeapon::ClientAddAmmo_Implementation(int32 AmmoToAdd)
-{
-	if (HasAuthority()) return;
-	Ammo = FMath::Clamp(Ammo + AmmoToAdd, 0, MagCapacity);
-	BlasterOwnerCharacter = BlasterOwnerCharacter == nullptr ? Cast<ABlasterCharacter>(GetOwner()) : BlasterOwnerCharacter;
-	if (BlasterOwnerCharacter && BlasterOwnerCharacter->GetCombat() && IsFull())
-	{
-		BlasterOwnerCharacter->GetCombat()->JumpToShotgunEnd();
-	}
-	SetHUDAmmo();
-}
 
 void AWeapon::AddAmmo(int32 AmmoToAdd)
 {
-	Ammo = FMath::Clamp(Ammo + AmmoToAdd, 0, MagCapacity);
-	SetHUDAmmo();
+	if (!HasAuthority()) return;
 
-	ClientAddAmmo(AmmoToAdd);
+	const int32 AmmoBefore = Ammo;
+	Ammo = FMath::Clamp(Ammo + AmmoToAdd, 0, MagCapacity);
+
+	SetHUDAmmo();
 }
 
 void AWeapon::SetHUDAmmo()
@@ -255,11 +260,7 @@ void AWeapon::SpendRound()
 	SetHUDAmmo();
 	if (HasAuthority())
 	{
-		ClientUpdateAmmo(Ammo);
-	}
-	else
-	{
-		++Sequence;
+		ForceNetUpdate();
 	}
 }
 

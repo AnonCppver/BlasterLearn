@@ -24,6 +24,7 @@ public:
 	void PlayHitReactMontage();
 	void PlayReloadMontage();
 	void PlayElimMontage();
+	void PlaySwitchMontage();
 	void Elim();
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastElim();
@@ -48,6 +49,7 @@ protected:
 	void Turn(float Value);
 	void LookUp(float Value);
 	void EquipButtonPressed();
+	void SwitchButtonPressed();
 	void CrouchButtonPressed();
 	void AimButtonPressed();
 	void AimButtonReleased();
@@ -90,6 +92,9 @@ private:
 	UFUNCTION(Server, Reliable)
 	void ServerEquipButtonPressed();
 
+	UFUNCTION(Server, Reliable)
+	void ServerSwitchButtonPressed();
+
 	float AO_Yaw;
 	float InterpAO_Yaw;
 	float AO_Pitch;
@@ -100,6 +105,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = Combat)
 	class UAnimMontage* FireWeaponMontage;
+
+	UPROPERTY(EditAnywhere, Category = Combat)
+	UAnimMontage* SwitchMontage;
 
 	void HideCameraIfCharacterClose();
 
@@ -173,8 +181,8 @@ private:
 	* Hit boxes used for server-side rewind
 	*/
 
-	UPROPERTY(EditAnywhere)
-	class UBoxComponent* Head;
+	/*UPROPERTY(EditAnywhere)
+	class UBoxComponent* Head;*/
 
 	UPROPERTY(EditAnywhere)
 	UBoxComponent* Hips;

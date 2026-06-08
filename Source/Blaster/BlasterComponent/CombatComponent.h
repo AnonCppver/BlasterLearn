@@ -41,6 +41,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void FinishReloading();
 
+	UFUNCTION(BlueprintCallable)
+	void SwapEnd();
+
+	UFUNCTION(BlueprintCallable)
+	void SwapAttachment();
+
 	void UpdateCarriedAmmo();
 	void PickupAmmo(EWeaponType WeaponType, int32 AmmoAmount);
 protected:

@@ -168,18 +168,11 @@ private:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class ACasing> CasingClass;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(ReplicatedUsing = OnRep_Ammo, EditAnywhere)
 	int32 Ammo;
 
-	UFUNCTION(Client, Reliable)
-	void ClientUpdateAmmo(int32 ServerAmmo);
-
-	UFUNCTION(Client, Reliable)
-	void ClientAddAmmo(int32 AmmoToAdd);
-
-	// The number of unprocessed server requests for Ammo.
-	// Incremented in SpendRound, decremented in ClientUpdateAmmo.
-	int32 Sequence = 0;
+	UFUNCTION()
+	void OnRep_Ammo();
 
 	void SpendRound();
 

@@ -75,9 +75,9 @@ ABlasterCharacter::ABlasterCharacter()
 	NetUpdateFrequency = 66.f;
 	MinNetUpdateFrequency = 33.f;
 
-	Head = CreateDefaultSubobject<UBoxComponent>(TEXT("Head"));
+	/*Head = CreateDefaultSubobject<UBoxComponent>(TEXT("Head"));
 	Head->SetupAttachment(GetMesh(), FName("Head"));
-	HitCollisionBoxes.Add(FName("Head"), Head);
+	HitCollisionBoxes.Add(FName("Head"), Head);*/
 
 	Hips = CreateDefaultSubobject<UBoxComponent>(TEXT("Hips"));
 	Hips->SetupAttachment(GetMesh(), FName("Hips"));
@@ -249,6 +249,13 @@ void ABlasterCharacter::SetupPlayerInputComponent(
 	);
 
 	PlayerInputComponent->BindAction(
+		"Switch",
+		IE_Pressed,
+		this,
+		&ABlasterCharacter::SwitchButtonPressed
+	);
+
+	PlayerInputComponent->BindAction(
 		"Crouch",
 		IE_Pressed,
 		this,
@@ -407,17 +414,26 @@ void ABlasterCharacter::EquipButtonPressed()
 
 void ABlasterCharacter::ServerEquipButtonPressed_Implementation()
 {
+	if (Combat&& OverlappingWeapon)
+	{
+		Combat->EquipWeapon(OverlappingWeapon);
+	}
+}
+
+void ABlasterCharacter::SwitchButtonPressed()
+{
+	if (bDisableGameplay) return;
 	if (Combat)
 	{
-		if (OverlappingWeapon)
-		{
-			Combat->EquipWeapon(OverlappingWeapon);
-		}
-		else if (Combat->ShouldSwapWeapons())
-		{
-			Combat->SwapWeapons();
-		}
-		// TODO: 如果正在换弹，应该广播JumpToReloadEnd
+		ServerSwitchButtonPressed();
+	}
+}
+
+void ABlasterCharacter::ServerSwitchButtonPressed_Implementation()
+{
+	if (Combat&& Combat->ShouldSwapWeapons())
+	{
+		Combat->SwapWeapons();
 	}
 }
 
@@ -652,6 +668,10 @@ void ABlasterCharacter::HideCameraIfCharacterClose()
 		{
 			Combat->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = true;
 		}
+		if (Combat && Combat->SecondaryWeapon && Combat->SecondaryWeapon->GetWeaponMesh())
+		{
+			Combat->SecondaryWeapon->GetWeaponMesh()->bOwnerNoSee = true;
+		}
 	}
 	else
 	{
@@ -659,6 +679,10 @@ void ABlasterCharacter::HideCameraIfCharacterClose()
 		if (Combat && Combat->EquippedWeapon && Combat->EquippedWeapon->GetWeaponMesh())
 		{
 			Combat->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = false;
+		}
+		if(Combat && Combat->SecondaryWeapon && Combat->SecondaryWeapon->GetWeaponMesh())
+		{
+			Combat->SecondaryWeapon->GetWeaponMesh()->bOwnerNoSee = false;
 		}
 	}
 }
@@ -703,7 +727,6 @@ void ABlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const 
 
 	UpdateHUDShield();
 	UpdateHUDHealth();
-	PlayHitReactMontage();
 
 	if (Health <= 0.f)
 	{
@@ -714,6 +737,10 @@ void ABlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const 
 			ABlasterPlayerController* AttackerController = Cast<ABlasterPlayerController>(InstigatorController);
 			BlasterGameMode->PlayerEliminated(this, BlasterPlayerController, AttackerController);
 		}
+	}
+	else if (Damage > 0.f)
+	{
+		PlayHitReactMontage();
 	}
 }
 
@@ -815,6 +842,15 @@ void ABlasterCharacter::PlayElimMontage()
 	if (AnimInstance && ElimMontage)
 	{
 		AnimInstance->Montage_Play(ElimMontage);
+	}
+}
+
+void ABlasterCharacter::PlaySwitchMontage()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && SwitchMontage)
+	{
+		AnimInstance->Montage_Play(SwitchMontage);
 	}
 }
 
