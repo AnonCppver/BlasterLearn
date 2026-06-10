@@ -30,6 +30,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	float Damage = 20.f;
 
+	UPROPERTY(EditAnywhere)
+	float HeadShotDamage = 40.f;
+
 protected:
 	virtual void BeginPlay() override;
 

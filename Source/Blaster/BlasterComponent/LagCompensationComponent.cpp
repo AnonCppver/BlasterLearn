@@ -56,7 +56,7 @@ FServerSideRewindResult ULagCompensationComponent::ConfirmHit(const FFramePackag
 	EnableCharacterMeshCollision(HitCharacter, ECollisionEnabled::NoCollision);
 
 	// Enable collision for the head first
-	UBoxComponent* HeadBox = HitCharacter->HitCollisionBoxes[FName("head")];
+	UBoxComponent* HeadBox = HitCharacter->HitCollisionBoxes[FName("Head")];
 	HeadBox->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	HeadBox->SetCollisionResponseToChannel(ECC_HitBox, ECollisionResponse::ECR_Block);
 
@@ -138,7 +138,7 @@ FServerSideRewindResult ULagCompensationComponent::ProjectileConfirmHit(const FF
 	EnableCharacterMeshCollision(HitCharacter, ECollisionEnabled::NoCollision);
 
 	// Enable collision for the head first
-	UBoxComponent* HeadBox = HitCharacter->HitCollisionBoxes[FName("head")];
+	UBoxComponent* HeadBox = HitCharacter->HitCollisionBoxes[FName("Head")];
 	HeadBox->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	HeadBox->SetCollisionResponseToChannel(ECC_HitBox, ECollisionResponse::ECR_Block);
 
@@ -227,7 +227,7 @@ FShotgunServerSideRewindResult ULagCompensationComponent::ShotgunConfirmHit(cons
 	for (auto& Frame : FramePackages)
 	{
 		// Enable collision for the head first
-		UBoxComponent* HeadBox = Frame.Character->HitCollisionBoxes[FName("head")];
+		UBoxComponent* HeadBox = Frame.Character->HitCollisionBoxes[FName("Head")];
 		HeadBox->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		HeadBox->SetCollisionResponseToChannel(ECC_HitBox, ECollisionResponse::ECR_Block);
 	}
@@ -281,7 +281,7 @@ FShotgunServerSideRewindResult ULagCompensationComponent::ShotgunConfirmHit(cons
 				HitBoxPair.Value->SetCollisionResponseToChannel(ECC_HitBox, ECollisionResponse::ECR_Block);
 			}
 		}
-		UBoxComponent* HeadBox = Frame.Character->HitCollisionBoxes[FName("head")];
+		UBoxComponent* HeadBox = Frame.Character->HitCollisionBoxes[FName("Head")];
 		HeadBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 
@@ -341,7 +341,7 @@ void ULagCompensationComponent::CacheBoxPositions(ABlasterCharacter* HitCharacte
 			FBoxInformation BoxInfo;
 			BoxInfo.Location = HitBoxPair.Value->GetComponentLocation();
 			BoxInfo.Rotation = HitBoxPair.Value->GetComponentRotation();
-			BoxInfo.BoxExtent = HitBoxPair.Value->GetScaledBoxExtent();
+			BoxInfo.BoxExtent = HitBoxPair.Value->GetUnscaledBoxExtent();
 			OutFramePackage.HitBoxInfo.Add(HitBoxPair.Key, BoxInfo);
 		}
 	}
@@ -487,9 +487,11 @@ void ULagCompensationComponent::ServerScoreRequest_Implementation(ABlasterCharac
 
 	if (Character && HitCharacter && DamageCauser && Confirm.bHitConfirmed)
 	{
+		const float Damage = Confirm.bHeadShot ? DamageCauser->GetHeadShotDamage() : DamageCauser->GetDamage();
+
 		UGameplayStatics::ApplyDamage(
 			HitCharacter,
-			DamageCauser->GetDamage(),
+			Damage,
 			Character->Controller,
 			DamageCauser,
 			UDamageType::StaticClass()
@@ -502,16 +504,13 @@ void ULagCompensationComponent::ProjectileServerScoreRequest_Implementation(ABla
 
 	FServerSideRewindResult Confirm = ProjectileServerSideRewind(HitCharacter, TraceStart, InitialVelocity, HitTime);
 
-	UE_LOG(LogTemp, Warning, TEXT("[ProjTrace 10 ProjectileSSRResult] Shooter=%s Controller=%s HitChar=%s Weapon=%s Confirmed=%d Head=%d DamageWillApply=%d"),
-		*GetNameSafe(Character), Character ? *GetNameSafe(Character->Controller) : TEXT("None"),
-		*GetNameSafe(HitCharacter), Character ? *GetNameSafe(Character->GetEquippedWeapon()) : TEXT("None"),
-		Confirm.bHitConfirmed, Confirm.bHeadShot, Character && HitCharacter && Confirm.bHitConfirmed);
-
-	if (Character && HitCharacter && Confirm.bHitConfirmed)
+	if (Character && HitCharacter && Confirm.bHitConfirmed && Character->GetEquippedWeapon())
 	{
+		const float Damage = Confirm.bHeadShot ? Character->GetEquippedWeapon()->GetHeadShotDamage() : Character->GetEquippedWeapon()->GetDamage();
+
 		UGameplayStatics::ApplyDamage(
 			HitCharacter,
-			Character->GetEquippedWeapon()->GetDamage(),
+			Damage,
 			Character->Controller,
 			Character->GetEquippedWeapon(),
 			UDamageType::StaticClass()
@@ -591,7 +590,7 @@ void ULagCompensationComponent::SaveFramePackage(FFramePackage& Package)
 			FBoxInformation BoxInformation;
 			BoxInformation.Location = BoxPair.Value->GetComponentLocation();
 			BoxInformation.Rotation = BoxPair.Value->GetComponentRotation();
-			BoxInformation.BoxExtent = BoxPair.Value->GetScaledBoxExtent();
+			BoxInformation.BoxExtent = BoxPair.Value->GetUnscaledBoxExtent();
 			Package.HitBoxInfo.Add(BoxPair.Key, BoxInformation);
 		}
 	}

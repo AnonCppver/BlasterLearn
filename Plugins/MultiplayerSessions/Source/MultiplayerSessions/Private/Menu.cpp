@@ -192,7 +192,7 @@ void UMenu::OnJoinSession(const EOnJoinSessionCompleteResult::Type Result)
                 if (APlayerController* PlayerController = GetGameInstance()->GetFirstLocalPlayerController())
                 {
                     PlayerController->ClientTravel(Address, TRAVEL_Absolute);
-                    JoinButton->SetIsEnabled(true);
+                    //JoinButton->SetIsEnabled(true);
                     if (GEngine)
                     {
                         GEngine->AddOnScreenDebugMessage(
@@ -288,8 +288,6 @@ void UMenu::OnJoinButtonClicked()
     if (MultiplayerSessionsSubsystem)
     {
         JoinButton->SetIsEnabled(false);
-        // We set a very high session count as we are using the DevId for game and
-        // lots of other devs will be adding sessions
         MultiplayerSessionsSubsystem->FindSessions(10000);
     }
     else

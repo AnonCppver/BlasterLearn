@@ -30,6 +30,7 @@ public:
 	void AttachActorToBackpack(AActor* ActorToAttach);
 	void FireButtonPressed(bool bPressed);
 	void DropEquippedWeapon();
+	void DropSecondaryWeapon();
 	void ReloadEmptyWeapon();
 
 	// shot gun

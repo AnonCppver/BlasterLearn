@@ -30,12 +30,17 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 		{
 			if (InstigatorPawn->HasAuthority()) // server
 			{
-				if (InstigatorPawn->IsLocallyControlled()) // ·þÎñ¶ËÏìÓ¦·þÎñ¶Ë½ÇÉ«£¬²»ÐèÒª¸´ÖÆ£¬ÇÒ²»Ê¹ÓÃSSR
+				if (InstigatorPawn->IsLocallyControlled()) // æœåŠ¡ç«¯å“åº”æœåŠ¡ç«¯è§’è‰²ï¼Œä¸éœ€è¦å¤åˆ¶ï¼Œä¸”ä¸ä½¿ç”¨SSR
 				{
 					SpawnedProjectile = World->SpawnActor<AProjectile>(ServerSideRewindProjectileClass, SocketTransform.GetLocation(), TargetRotation, SpawnParams);
-					if (SpawnedProjectile) SpawnedProjectile->bUseServerSideRewind = false;
+					if (SpawnedProjectile) 
+					{
+						SpawnedProjectile->bUseServerSideRewind = false;
+						SpawnedProjectile->Damage = Damage;
+						SpawnedProjectile->HeadShotDamage = HeadShotDamage;
+					}
 				}
-				else // ·þÎñ¶ËÏìÓ¦¿Í»§¶Ë½ÇÉ«£¬²»ÐèÒª¸´ÖÆ£¬µ«Ê¹ÓÃSSR
+				else // æœåŠ¡ç«¯å“åº”å®¢æˆ·ç«¯è§’è‰²ï¼Œä¸éœ€è¦å¤åˆ¶ï¼Œä½†ä½¿ç”¨SSR
 				{
 					SpawnedProjectile = World->SpawnActor<AProjectile>(ServerSideRewindProjectileClass, SocketTransform.GetLocation(), TargetRotation, SpawnParams);
 					if (SpawnedProjectile) SpawnedProjectile->bUseServerSideRewind = true;
@@ -43,7 +48,7 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 			}
 			else // client, using SSR
 			{
-				if (InstigatorPawn->IsLocallyControlled()) // ¿Í»§¶ËÏìÓ¦±¾µØ½ÇÉ«£¬²»¸´ÖÆ£¬Ê¹ÓÃSSR
+				if (InstigatorPawn->IsLocallyControlled()) // å®¢æˆ·ç«¯å“åº”æœ¬åœ°è§’è‰²ï¼Œä¸å¤åˆ¶ï¼Œä½¿ç”¨SSR
 				{
 					SpawnedProjectile = World->SpawnActor<AProjectile>(ServerSideRewindProjectileClass, SocketTransform.GetLocation(), TargetRotation, SpawnParams);
 					if (SpawnedProjectile)
@@ -53,14 +58,19 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 						SpawnedProjectile->InitialVelocity = SpawnedProjectile->GetActorForwardVector() * SpawnedProjectile->InitialSpeed;
 					}
 				}
-				else // ¿Í»§¶ËÏìÓ¦·Ç±¾µØ½ÇÉ«£¬Ö»ÐèÒª¶¯»­Ð§¹û
+				else // å®¢æˆ·ç«¯å“åº”éžæœ¬åœ°è§’è‰²ï¼Œåªéœ€è¦åŠ¨ç”»æ•ˆæžœ
 				{
 					SpawnedProjectile = World->SpawnActor<AProjectile>(ServerSideRewindProjectileClass, SocketTransform.GetLocation(), TargetRotation, SpawnParams);
-					if (SpawnedProjectile) SpawnedProjectile->bUseServerSideRewind = false;
+					if (SpawnedProjectile)
+					{
+						SpawnedProjectile->bUseServerSideRewind = false;
+						SpawnedProjectile->Damage = Damage;
+						SpawnedProjectile->HeadShotDamage = HeadShotDamage;
+					}
 				}
 			}
 		}
-		else // ²»ÐèÒªÑÓ³Ù²¹³¥£¬Ö±½ÓÉú³É¸´ÖÆµÄ×Óµ¯
+		else // ä¸éœ€è¦å»¶è¿Ÿè¡¥å¿ï¼Œç›´æŽ¥ç”Ÿæˆå¤åˆ¶çš„å­å¼¹
 		{
 			if (InstigatorPawn->HasAuthority())
 			{
@@ -68,7 +78,7 @@ void AProjectileWeapon::Fire(const FVector& HitTarget)
 				if (SpawnedProjectile) SpawnedProjectile->bUseServerSideRewind = false;
 			}
 		}
-		if (SpawnedProjectile)// ×Óµ¯ºöÂÔ×Ô¼º
+		if (SpawnedProjectile)// å­å¼¹å¿½ç•¥è‡ªå·±
 		{
 			UBoxComponent* CollisionBox = SpawnedProjectile->GetCollisionBox();
 			if (CollisionBox)

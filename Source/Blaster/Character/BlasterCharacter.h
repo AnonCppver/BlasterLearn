@@ -9,6 +9,8 @@
 #include "Blaster/BlasterTypes/CombatState.h"
 #include "BlasterCharacter.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLeftGame);
+
 UCLASS()
 class BLASTER_API ABlasterCharacter : public ACharacter, public IInteractWithCrosshairsInterface
 {
@@ -25,11 +27,17 @@ public:
 	void PlayReloadMontage();
 	void PlayElimMontage();
 	void PlaySwitchMontage();
-	void Elim();
+	void Elim(bool bPlayerLeftGame);
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastElim();
+	void MulticastElim(bool bPlayerLeftGame);
 	UPROPERTY(Replicated)
 	bool bDisableGameplay = false;
+
+	UFUNCTION(Server, Reliable)
+	void ServerLeaveGame();
+	FOnLeftGame OnLeftGame;
+	bool bLeftGame = false;
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void ShowSniperScopeWidget(bool bShowScope);
 	void UpdateHUDHealth();
@@ -181,8 +189,8 @@ private:
 	* Hit boxes used for server-side rewind
 	*/
 
-	/*UPROPERTY(EditAnywhere)
-	class UBoxComponent* Head;*/
+	UPROPERTY(EditAnywhere)
+	class UBoxComponent* Head;
 
 	UPROPERTY(EditAnywhere)
 	UBoxComponent* Hips;

@@ -28,14 +28,15 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 		WeaponTraceHit(Start, HitTarget, FireHit);
 
 		ABlasterCharacter* BlasterCharacter = Cast<ABlasterCharacter>(FireHit.GetActor());
-		// ������ҿ��𣬶�����ΪMulticastFire���ڱ��ص��ô˺���������ֻ�п�����������ӵ��InstigatorController
+		// 任意玩家开火，都会因为MulticastFire而在本地调用此函数，但是只有开火者与服务端拥有InstigatorController
 		if (BlasterCharacter && InstigatorController)
 		{
+			const float DamageToCause = FireHit.BoneName.ToString() == FString("Head") ? HeadShotDamage : Damage;
 			if (HasAuthority() && (!bUseServerSideRewind || OwnerPawn->IsLocallyControlled()))
 			{
 				UGameplayStatics::ApplyDamage(
 					BlasterCharacter,
-					Damage,
+					DamageToCause,
 					InstigatorController,
 					this,
 					UDamageType::StaticClass()
@@ -47,7 +48,7 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 				BlasterOwnerController = BlasterOwnerController == nullptr ? Cast<ABlasterPlayerController>(InstigatorController) : BlasterOwnerController;
 				if (BlasterOwnerController && BlasterOwnerCharacter && BlasterOwnerCharacter->GetLagCompensation())
 				{
-					// �ͻ��˵Ļ��棬��ɫλ����RTT/2֮ǰ������RPCҲӦ��ʹ�����ʱ���
+					// 客户端的画面，角色位置在RTT/2之前，发送RPC也应该使用这个时间点
 					BlasterOwnerCharacter->GetLagCompensation()->ServerScoreRequest(
 						BlasterCharacter,
 						Start,

@@ -31,8 +31,14 @@ public:
 
 	float SingleTripTime = 0.f;
 
+	void BroadcastElim(APlayerState* Attacker, APlayerState* Victim);
+
+	UFUNCTION(Client, Reliable)
+	void ClientElimAnnouncement(APlayerState* Attacker, APlayerState* Victim);
+
 protected:
 	virtual void BeginPlay() override;
+	virtual void SetupInputComponent() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -63,6 +69,8 @@ protected:
 	void HighPingWarning();
 	void StopHighPingWarning();
 	void CheckPing(float DeltaTime);
+
+	void ShowReturnToMainMenu();
 
 private:
 	UPROPERTY()
@@ -118,6 +126,16 @@ private:
 	float HighPingThreshold = 50.f;
 
 	FTimerHandle MatchCountdownTimer;
+
+	/**
+	* Return to main menu
+	*/
+
+	UPROPERTY(EditAnywhere, Category = HUD)
+	TSubclassOf<class UUserWidget> InGameMenuWidget;
+
+	UPROPERTY()
+	class UInGameMenu* InGameMenu;
 
 public:
 	FORCEINLINE void setLevelStartingTime(float Time) { LevelStartingTime = Time; }

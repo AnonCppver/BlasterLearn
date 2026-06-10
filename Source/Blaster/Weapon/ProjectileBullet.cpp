@@ -17,14 +17,15 @@ void AProjectileBullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
 	ABlasterCharacter* HitCharacter = Cast<ABlasterCharacter>(OtherActor);
 	ABlasterPlayerController* OwnerController = OwnerCharacter ? Cast<ABlasterPlayerController>(OwnerCharacter->Controller) : nullptr;
 
-	const bool bWillDirectDamage = OwnerCharacter && OwnerController && HasAuthority() && (!bUseServerSideRewind || OwnerCharacter->IsLocallyControlled());
-	const bool bWillSendSSR = OwnerCharacter && OwnerController && bUseServerSideRewind && OwnerCharacter->GetLagCompensation() && OwnerCharacter->IsLocallyControlled() && HitCharacter;
+	//const bool bWillDirectDamage = OwnerCharacter && OwnerController && HasAuthority() && (!bUseServerSideRewind || OwnerCharacter->IsLocallyControlled());
+	//const bool bWillSendSSR = OwnerCharacter && OwnerController && bUseServerSideRewind && OwnerCharacter->GetLagCompensation() && OwnerCharacter->IsLocallyControlled() && HitCharacter;
 
 	if (OwnerCharacter && OwnerController)
 	{
 		if (OwnerCharacter->HasAuthority() && OwnerCharacter->IsLocallyControlled())
 		{
-			UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerController, this, UDamageType::StaticClass());
+			const float DamageToCause = Hit.BoneName.ToString() == FString("Head") ? HeadShotDamage : Damage;
+			UGameplayStatics::ApplyDamage(OtherActor, DamageToCause, OwnerController, this, UDamageType::StaticClass());
 			Super::OnHit(HitComp, OtherActor, OtherComp, NormalImpulse, Hit);
 			return;
 		}

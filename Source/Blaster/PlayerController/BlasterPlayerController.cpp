@@ -18,6 +18,7 @@
 #include "Blaster/Weapon/Weapon.h"
 #include "Blaster/GameState/BlasterGameState.h"
 #include "Components/Image.h"
+#include "Blaster/HUD/InGameMenu.h"
 
 void ABlasterPlayerController::BeginPlay()
 {
@@ -96,7 +97,7 @@ void ABlasterPlayerController::SetHUDScore(float Score)
 		BlasterHUD->CharacterOverlay->ScoreAmount;
 	if (bHUDValid)
 	{
-		FString ScoreText = FString::Printf(TEXT("Score : %d"), FMath::FloorToInt(Score));
+		FString ScoreText = FString::Printf(TEXT("击败 : %d"), FMath::FloorToInt(Score));
 		BlasterHUD->CharacterOverlay->ScoreAmount->SetText(FText::FromString(ScoreText));
 	}
 	else
@@ -114,7 +115,7 @@ void ABlasterPlayerController::SetHUDDefeats(int32 Defeats)
 		BlasterHUD->CharacterOverlay->DefeatsAmount;
 	if (bHUDValid)
 	{
-		FString DefeatsText = FString::Printf(TEXT("Defeats : %d"), Defeats);
+		FString DefeatsText = FString::Printf(TEXT("死亡 : %d"), Defeats);
 		BlasterHUD->CharacterOverlay->DefeatsAmount->SetText(FText::FromString(DefeatsText));
 	}
 	else
@@ -410,7 +411,7 @@ void ABlasterPlayerController::ClientJoinMidgame_Implementation(FName StateOfMat
 
 void ABlasterPlayerController::OnPossess(APawn* InPawn)
 {
-	// ������ˢ��HUD for server
+	// 重生后刷新HUD for server
 	Super::OnPossess(InPawn);
 	ABlasterCharacter* BlasterCharacter = Cast<ABlasterCharacter>(InPawn);
 	if (BlasterCharacter)
@@ -494,6 +495,72 @@ void ABlasterPlayerController::StopHighPingWarning()
 		if (BlasterHUD->CharacterOverlay->IsAnimationPlaying(BlasterHUD->CharacterOverlay->HighPingAnimation))
 		{
 			BlasterHUD->CharacterOverlay->StopAnimation(BlasterHUD->CharacterOverlay->HighPingAnimation);
+		}
+	}
+}
+
+void ABlasterPlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+	if (InputComponent == nullptr) return;
+
+	InputComponent->BindAction("Quit", IE_Pressed, this, &ABlasterPlayerController::ShowReturnToMainMenu);
+}
+
+void ABlasterPlayerController::ShowReturnToMainMenu()
+{
+	if (InGameMenuWidget == nullptr) return;
+	if (InGameMenu == nullptr)
+	{
+		InGameMenu = CreateWidget<UInGameMenu>(this, InGameMenuWidget);
+	}
+	if (InGameMenu)
+	{
+		if (!InGameMenu->bIsMenuOpen)
+		{
+			InGameMenu->MenuSetup();
+		}
+		else
+		{
+			InGameMenu->MenuTearDown();
+		}
+	}
+}
+
+void ABlasterPlayerController::BroadcastElim(APlayerState* Attacker, APlayerState* Victim)
+{
+	ClientElimAnnouncement(Attacker, Victim);
+}
+
+void ABlasterPlayerController::ClientElimAnnouncement_Implementation(APlayerState* Attacker, APlayerState* Victim)
+{
+	APlayerState* Self = GetPlayerState<APlayerState>();
+	if (Attacker && Victim && Self)
+	{
+		BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
+		if (BlasterHUD)
+		{
+			if (Attacker == Self && Victim != Self)
+			{
+				BlasterHUD->AddElimAnnouncement("你", Victim->GetPlayerName());
+				return;
+			}
+			if (Victim == Self && Attacker != Self)
+			{
+				BlasterHUD->AddElimAnnouncement(Attacker->GetPlayerName(), "你");
+				return;
+			}
+			if (Attacker == Victim && Attacker == Self)
+			{
+				BlasterHUD->AddElimAnnouncement("你", "自己");
+				return;
+			}
+			if (Attacker == Victim && Attacker != Self)
+			{
+				BlasterHUD->AddElimAnnouncement(Attacker->GetPlayerName(), "自己");
+				return;
+			}
+			BlasterHUD->AddElimAnnouncement(Attacker->GetPlayerName(), Victim->GetPlayerName());
 		}
 	}
 }

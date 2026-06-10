@@ -52,7 +52,7 @@ ABlasterCharacter::ABlasterCharacter()
 	GetCapsuleComponent()->SetCollisionResponseToChannel(
 		ECollisionChannel::ECC_Camera,
 		ECollisionResponse::ECR_Ignore
-	);// ±ÜÃâ½ºÄÒµ²×¡¾µÍ·
+	);// é¿å…èƒ¶å›ŠæŒ¡ä½é•œå¤´
 
 	GetMesh()->SetCollisionObjectType(ECC_SkeletalMesh);
 
@@ -66,18 +66,18 @@ ABlasterCharacter::ABlasterCharacter()
 		ECollisionResponse::ECR_Block
 	);
 
-	// ¿ØÖÆ½ÇÉ«Ğı×ª²åÖµËÙ¶È£¬ÊıÖµÔ½´ó×ªÉíÔ½¿ì
+	// æ§åˆ¶è§’è‰²æ—‹è½¬æ’å€¼é€Ÿåº¦ï¼Œæ•°å€¼è¶Šå¤§è½¬èº«è¶Šå¿«
 	GetCharacterMovement()->RotationRate = FRotator(0.f, 850.f, 0.f);
 
 	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 
-	// Ìá¸ßÍøÂçÍ¬²½ÆµÂÊ£¬¼õÉÙ½ÇÉ«Ğı×ª/Ãé×¼µÈ×´Ì¬Í¬²½ÑÓ³Ù
+	// æé«˜ç½‘ç»œåŒæ­¥é¢‘ç‡ï¼Œå‡å°‘è§’è‰²æ—‹è½¬/ç„å‡†ç­‰çŠ¶æ€åŒæ­¥å»¶è¿Ÿ
 	NetUpdateFrequency = 66.f;
 	MinNetUpdateFrequency = 33.f;
 
-	/*Head = CreateDefaultSubobject<UBoxComponent>(TEXT("Head"));
+	Head = CreateDefaultSubobject<UBoxComponent>(TEXT("Head"));
 	Head->SetupAttachment(GetMesh(), FName("Head"));
-	HitCollisionBoxes.Add(FName("Head"), Head);*/
+	HitCollisionBoxes.Add(FName("Head"), Head);
 
 	Hips = CreateDefaultSubobject<UBoxComponent>(TEXT("Hips"));
 	Hips->SetupAttachment(GetMesh(), FName("Hips"));
@@ -157,8 +157,8 @@ void ABlasterCharacter::GetLifetimeReplicatedProps(
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	// Ã¿¸ö ABlasterCharacter µÄ OverlappingWeapon ¶¼ÓÉ·şÎñÆ÷Î¬»¤£¬
-	// µ±Ëü·¢Éú±ä»¯Ê±£¬Ö»»áÍ¬²½¸øÕâ¸ö Character µÄÓµÓĞÕß¿Í»§¶Ë
+	// æ¯ä¸ª ABlasterCharacter çš„ OverlappingWeapon éƒ½ç”±æœåŠ¡å™¨ç»´æŠ¤ï¼Œ
+	// å½“å®ƒå‘ç”Ÿå˜åŒ–æ—¶ï¼Œåªä¼šåŒæ­¥ç»™è¿™ä¸ª Character çš„æ‹¥æœ‰è€…å®¢æˆ·ç«¯
 	DOREPLIFETIME_CONDITION(
 		ABlasterCharacter,
 		OverlappingWeapon,
@@ -616,16 +616,16 @@ void ABlasterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 	}
 }
 
-// OverlappingWeapon ÊÇ±»¸´ÖÆºóµÄĞÂÖµ£¬LastWeapon ÊÇ¸´ÖÆÇ°µÄ¾ÉÖµ
+// OverlappingWeapon æ˜¯è¢«å¤åˆ¶åçš„æ–°å€¼ï¼ŒLastWeapon æ˜¯å¤åˆ¶å‰çš„æ—§å€¼
 void ABlasterCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
 {
-	// ¿Í»§¶ËÊÕµ½·şÎñÆ÷¸´ÖÆ½á¹û£ºÏÔÊ¾ĞÂÎäÆ÷ÌáÊ¾
+	// å®¢æˆ·ç«¯æ”¶åˆ°æœåŠ¡å™¨å¤åˆ¶ç»“æœï¼šæ˜¾ç¤ºæ–°æ­¦å™¨æç¤º
 	if (OverlappingWeapon)
 	{
 		OverlappingWeapon->ShowPickupWidget(true);
 	}
 
-	// Òş²ØÉÏÒ»¸öÖØµşÎäÆ÷£¬±ÜÃâ¶à¸ö PickupWidget Í¬Ê±ÏÔÊ¾
+	// éšè—ä¸Šä¸€ä¸ªé‡å æ­¦å™¨ï¼Œé¿å…å¤šä¸ª PickupWidget åŒæ—¶æ˜¾ç¤º
 	if (LastWeapon)
 	{
 		LastWeapon->ShowPickupWidget(false);
@@ -651,8 +651,8 @@ AWeapon* ABlasterCharacter::GetEquippedWeapon()
 
 FVector ABlasterCharacter::GetHitTarget() const
 {
-	// HitTarget ÓÉ CombatComponent Î¬»¤£¬
-	// ±íÊ¾µ±Ç°×¼ĞÇ/ÎäÆ÷Ãé×¼µÄÊÀ½ç×ø±ê
+	// HitTarget ç”± CombatComponent ç»´æŠ¤ï¼Œ
+	// è¡¨ç¤ºå½“å‰å‡†æ˜Ÿ/æ­¦å™¨ç„å‡†çš„ä¸–ç•Œåæ ‡
 	if (Combat == nullptr) return FVector();
 
 	return Combat->HitTarget;
@@ -690,7 +690,7 @@ void ABlasterCharacter::HideCameraIfCharacterClose()
 void ABlasterCharacter::OnRep_Health(float LastHealth)
 {
 	UpdateHUDHealth();
-	// ¿Í»§¶ËËÀÍö¶¯»­»á±»ÊÜ»÷¶¯»­¿¨µô
+	// å®¢æˆ·ç«¯æ­»äº¡åŠ¨ç”»ä¼šè¢«å—å‡»åŠ¨ç”»å¡æ‰
 	if (Health > 0.f&& Health < LastHealth)
 	{
 		PlayHitReactMontage();
@@ -718,8 +718,8 @@ void ABlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const 
 		}
 		else
 		{
-			Shield = 0.f;
 			DamageToHealth = FMath::Clamp(DamageToHealth - Shield, 0.f, Damage);
+			Shield = 0.f;
 		}
 	}
 
@@ -772,7 +772,7 @@ void ABlasterCharacter::UpdateHUDAmmo()
 	}
 }
 
-void ABlasterCharacter::Elim()
+void ABlasterCharacter::Elim(bool bPlayerLeftGame)
 {
 	if (Combat)
 	{
@@ -785,19 +785,14 @@ void ABlasterCharacter::Elim()
 			Combat->SecondaryWeapon->Dropped();
 		}
 	}
-	MulticastElim();
-	GetWorldTimerManager().SetTimer(
-		ElimTimer,
-		this,
-		&ABlasterCharacter::ElimTimerFinished,
-		ElimDelay
-	);
+	MulticastElim(bPlayerLeftGame);
 }
 
-void ABlasterCharacter::MulticastElim_Implementation()
+void ABlasterCharacter::MulticastElim_Implementation(bool bPlayerLeftGame)
 {
 	// BlasterPlayerController = Cast<ABlasterPlayerController>(Controller);
-	// ¿Í»§¶ËÊµ¼Ê¿ØÖÆµÄcharacter²Å»á·µ»ØÓĞĞ§ptr,Í¨¹ıÕâÒ»µãÇø·ÖĞèÒª¸üĞÂhudµÄ½ÇÉ«
+	// å®¢æˆ·ç«¯å®é™…æ§åˆ¶çš„characteræ‰ä¼šè¿”å›æœ‰æ•ˆptr,é€šè¿‡è¿™ä¸€ç‚¹åŒºåˆ†éœ€è¦æ›´æ–°hudçš„è§’è‰²
+	bLeftGame = bPlayerLeftGame;
 	if (BlasterPlayerController)
 	{
 		BlasterPlayerController->SetHUDWeaponAmmo(0);
@@ -825,14 +820,34 @@ void ABlasterCharacter::MulticastElim_Implementation()
 	{
 		ShowSniperScopeWidget(false);
 	}
+	GetWorldTimerManager().SetTimer(
+		ElimTimer,
+		this,
+		&ABlasterCharacter::ElimTimerFinished,
+		ElimDelay
+	);
 }
 
 void ABlasterCharacter::ElimTimerFinished()
 {
 	ABlasterGameMode* BlasterGameMode = GetWorld()->GetAuthGameMode<ABlasterGameMode>();
-	if (BlasterGameMode)
+	if (BlasterGameMode && !bLeftGame)
 	{
 		BlasterGameMode->RequestRespawn(this, Controller);
+	}
+	if (bLeftGame && IsLocallyControlled())
+	{
+		OnLeftGame.Broadcast();
+	}
+}
+
+void ABlasterCharacter::ServerLeaveGame_Implementation()
+{
+	ABlasterGameMode* BlasterGameMode = GetWorld()->GetAuthGameMode<ABlasterGameMode>();
+	BlasterPlayerState = BlasterPlayerState == nullptr ? GetPlayerState<ABlasterPlayerState>() : BlasterPlayerState;
+	if (BlasterGameMode && BlasterPlayerState)
+	{
+		BlasterGameMode->PlayerLeftGame(BlasterPlayerState);
 	}
 }
 

@@ -728,6 +728,14 @@ void UCombatComponent::DropEquippedWeapon()
 	}
 }
 
+void UCombatComponent::DropSecondaryWeapon()
+{
+	if (SecondaryWeapon)
+	{
+		SecondaryWeapon->Dropped();
+	}
+}
+
 void UCombatComponent::AttachActorToRightHand(AActor* ActorToAttach)
 {
 	if (Character == nullptr || Character->GetMesh() == nullptr || ActorToAttach == nullptr) return;
