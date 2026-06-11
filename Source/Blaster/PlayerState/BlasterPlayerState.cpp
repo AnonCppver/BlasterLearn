@@ -69,3 +69,21 @@ void ABlasterPlayerState::OnRep_Defeats()
 		}
 	}
 }
+
+FSlateColor ABlasterPlayerState::GetNameColor()
+{
+	switch (Team)
+	{
+	case ETeam::ET_NoTeam:
+		return FSlateColor(FLinearColor(1.f, 1.f, 1.f, 0.4f));
+
+	case ETeam::ET_BlueTeam:
+		return FSlateColor(FLinearColor(0.f, 0.f, 1.f, 0.4f));
+
+	case ETeam::ET_RedTeam:
+		return FSlateColor(FLinearColor(1.f, 0.f, 0.f, 0.4f));
+
+	default:
+		return FSlateColor(FLinearColor(1.f, 1.f, 1.f, 0.4f));
+	}
+}

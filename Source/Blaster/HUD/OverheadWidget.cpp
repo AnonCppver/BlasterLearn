@@ -5,42 +5,35 @@
 #include "GameFramework/PlayerState.h"
 #include "Components/TextBlock.h"
 
-void UOverheadWidget::SetDisplayText(FString TextToDisplay)
+void UOverheadWidget::SetDisplayText(FString TextToDisplay, FSlateColor ColorToDisaplay)
 {
 	if (DisplayText)
 	{
 		DisplayText->SetText(FText::FromString(TextToDisplay));
+		DisplayText->SetColorAndOpacity(
+			FSlateColor(
+				FLinearColor(1.f, 1.f, 1.f, 0.4f)
+			)
+		);
 	}
 }
 
-void UOverheadWidget::ShowPlayerNetRole(APawn* InPawn)
+void UOverheadWidget::ShowPlayerNetRole(APawn* InPawn, FSlateColor ColorToDisaplay)
 {
-	/*ENetRole RemoteRole = InPawn->GetRemoteRole();
-	FString Role;
-	switch (RemoteRole)
+	if (InPawn == nullptr) 
 	{
-	case ENetRole::ROLE_Authority:
-		Role = FString("Authority");
-		break;
-	case ENetRole::ROLE_AutonomousProxy:
-		Role = FString("Autonomous Proxy");
-		break;
-	case ENetRole::ROLE_SimulatedProxy:
-		Role = FString("Simulated Proxy");
-		break;
-	case ENetRole::ROLE_None:
-		Role = FString("None");
-		break;
+		return;
 	}
-	FString RemoteRoleString = FString::Printf(TEXT("Remote Role: %s"), *Role);*/
-	if (InPawn == nullptr) return;
 
 	APlayerState* PS = InPawn->GetPlayerState();
-	if (PS == nullptr) return;
+	if (PS == nullptr)
+	{
+		return;
+	}
 
 	FString PlayerName = PS->GetPlayerName();
 
-	SetDisplayText(PlayerName);
+	SetDisplayText(PlayerName, ColorToDisaplay);
 }
 
 void UOverheadWidget::NativeDestruct()

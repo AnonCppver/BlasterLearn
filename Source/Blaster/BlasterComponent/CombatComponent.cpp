@@ -174,7 +174,7 @@ void UCombatComponent::OnRep_Aiming()
 {
 	if (Character && Character->IsLocallyControlled())
 	{
-		bAiming = bAimButtonPressed;// ±¾µØÍæ¼ÒµÄbAimingÓÉbAimingButtonPressed¿ØÖÆ£¬ÆäËûÍæ¼ÒµÄbAimingÓÉ·þÎñÆ÷¸´ÖÆ¿ØÖÆ
+		bAiming = bAimButtonPressed;// æœ¬åœ°çŽ©å®¶çš„bAimingç”±bAimingButtonPressedæŽ§åˆ¶ï¼Œå…¶ä»–çŽ©å®¶çš„bAimingç”±æœåŠ¡å™¨å¤åˆ¶æŽ§åˆ¶
 	}
 }
 
@@ -209,8 +209,8 @@ void UCombatComponent::OnRep_EquippedWeapon()
 {
 	if (EquippedWeapon && Character)
 	{
-		// EquippedWeapon WeaponState¶¼±»¸´ÖÆµ«²»Ò»¶¨±£Ö¤Ë³Ðò
-		// Èç¹ûÏÈµ÷ÓÃ´ËOnRep£¬»áµ¼ÖÂWeaponState²»ÕýÈ·£¬ËùÒÔÔÚÕâÀïÇ¿ÖÆÉèÖÃÒ»´Î
+		// EquippedWeapon WeaponStateéƒ½è¢«å¤åˆ¶ä½†ä¸ä¸€å®šä¿è¯é¡ºåº
+		// å¦‚æžœå…ˆè°ƒç”¨æ­¤OnRepï¼Œä¼šå¯¼è‡´WeaponStateä¸æ­£ç¡®ï¼Œæ‰€ä»¥åœ¨è¿™é‡Œå¼ºåˆ¶è®¾ç½®ä¸€æ¬¡
 		EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
 		const USkeletalMeshSocket* HandSocket = Character->GetMesh()->GetSocketByName(FName("RightHandSocket"));
 		AttachActorToRightHand(EquippedWeapon);
@@ -311,7 +311,7 @@ void UCombatComponent::ServerFire_Implementation(const FVector_NetQuantize& Trac
 
 void UCombatComponent::MulticastFire_Implementation(const FVector_NetQuantize& TraceHitTarget)
 {
-	// ¿ª»ðµÄ¿Í»§¶Ë²»ÐèÒª
+	// å¼€ç«çš„å®¢æˆ·ç«¯ä¸éœ€è¦
 	if (Character && Character->IsLocallyControlled() && !Character->HasAuthority()) return;
 	LocalFire(TraceHitTarget);
 }
@@ -434,7 +434,7 @@ void UCombatComponent::FireTimerFinished()
 bool UCombatComponent::CanFire()
 {
 	if (EquippedWeapon == nullptr) return false;
-	// shotgun ÔÚ×°µ¯¹ý³ÌÖÐ¿ÉÒÔ¼ÌÐø¿ªÇ¹
+	// shotgun åœ¨è£…å¼¹è¿‡ç¨‹ä¸­å¯ä»¥ç»§ç»­å¼€æžª
 	if (!EquippedWeapon->IsEmpty() && 
 		bCanFire && 
 		CombatState == ECombatState::ECS_Reloading && 

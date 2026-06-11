@@ -151,7 +151,7 @@ private:
 	UFUNCTION()
 	void OnRep_Shield(float LastShield);
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class ABlasterPlayerController* BlasterPlayerController;
 	/*
 	* Elimination
@@ -175,7 +175,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = Combat)
 	UAnimMontage* ReloadMontage;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere,BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class ABlasterPlayerState* BlasterPlayerState;
 
 	/**
@@ -184,6 +184,12 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AWeapon> DefaultWeaponClass;
+
+	/*
+	* GameMode 
+	*/
+	UPROPERTY()
+	class ABlasterGameMode* BlasterGameMode;
 
 	/**
 	* Hit boxes used for server-side rewind

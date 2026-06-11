@@ -42,6 +42,15 @@ public:
 	UTextBlock* MatchCountdownText;
 
 	UPROPERTY(meta = (BindWidget))
+	UTextBlock* RedTeamScore;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* BlueTeamScore;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* ScoreSpacerText;
+
+	UPROPERTY(meta = (BindWidget))
 	class UImage* HighPingImage;
 
 	UPROPERTY(meta = (BindWidgetAnim), Transient)

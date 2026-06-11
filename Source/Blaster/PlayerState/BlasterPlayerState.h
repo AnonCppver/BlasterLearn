@@ -41,4 +41,5 @@ private:
 public:
 	FORCEINLINE ETeam GetTeam() const { return Team; }
 	FORCEINLINE void SetTeam(ETeam TeamToSet) { Team = TeamToSet; }
+	FSlateColor GetNameColor();
 };

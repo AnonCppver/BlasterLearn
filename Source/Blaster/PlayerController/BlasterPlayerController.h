@@ -21,9 +21,9 @@ public:
 
 	virtual float GetServerTime();
 	virtual void ReceivedPlayer() override;
-	void OnMatchStateSet(FName State);
 
-	void HandleMatchHasStarted();
+	void OnMatchStateSet(FName State, bool bTeamsMatch = false);
+	void HandleMatchHasStarted(bool bTeamsMatch = false);
 	void HandleCooldown();
 
 	UFUNCTION(Client, Reliable)
@@ -36,12 +36,25 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientElimAnnouncement(APlayerState* Attacker, APlayerState* Victim);
 
+	UPROPERTY(ReplicatedUsing = OnRep_ShowTeamScores)
+	bool bShowTeamScores = false;
+
+	UFUNCTION()
+	void OnRep_ShowTeamScores();
+
+	// 这里客户端其实并没有在加入后获得队伍分数，而是
+	void HideTeamScores();
+	void InitTeamScores();
+	void SetHUDRedTeamScore(int32 RedScore);
+	void SetHUDBlueTeamScore(int32 BlueScore);
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+
 
 	void SetHUDTime();
 	void PollInit();
@@ -110,6 +123,8 @@ private:
 	bool bInitializeCarriedAmmo = false;
 	float HUDWeaponAmmo;
 	bool bInitializeWeaponAmmo = false;
+	bool bInitializeTeamScores = false;
+	bool bHideTeamScores = false;
 
 	// Network
 	float HighPingRunningTime = 0.f;

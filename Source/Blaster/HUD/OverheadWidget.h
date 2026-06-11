@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Styling/SlateColor.h"
 #include "OverheadWidget.generated.h"
 
 /**
@@ -17,10 +18,10 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* DisplayText;
 
-	void SetDisplayText(FString TextToDisplay);
+	void SetDisplayText(FString TextToDisplay, FSlateColor ColorToDisaplay);
 
 	UFUNCTION(BlueprintCallable)
-	void ShowPlayerNetRole(APawn* InPawn);
+	void ShowPlayerNetRole(APawn* InPawn, FSlateColor ColorToDisaplay);
 
 protected:
 	virtual void NativeDestruct() override;
