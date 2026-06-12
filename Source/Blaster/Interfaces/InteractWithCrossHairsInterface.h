@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Blaster/BlasterTypes/Team.h"
 #include "UObject/Interface.h"
 #include "InteractWithCrosshairsInterface.generated.h"
 
@@ -22,4 +23,5 @@ class BLASTER_API IInteractWithCrosshairsInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
+	virtual ETeam GetCrosshairTeam() = 0;
 };

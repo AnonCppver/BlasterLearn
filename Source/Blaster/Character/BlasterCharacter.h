@@ -43,6 +43,7 @@ public:
 	void UpdateHUDHealth();
 	void UpdateHUDShield();
 	void UpdateHUDAmmo();
+	virtual ETeam GetCrosshairTeam() override;
 
 	void SpawDefaultWeapon();
 

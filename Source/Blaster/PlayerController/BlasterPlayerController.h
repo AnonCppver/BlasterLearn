@@ -105,6 +105,9 @@ private:
 	UFUNCTION()
 	void OnRep_MatchState();
 
+	FString GetInfoText(const TArray<class ABlasterPlayerState*>& Players);
+	FString GetTeamsInfoText(class ABlasterGameState* BlasterGameState);
+
 	UPROPERTY()
 	class UCharacterOverlay* CharacterOverlay;
 

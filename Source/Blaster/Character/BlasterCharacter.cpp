@@ -710,22 +710,23 @@ void ABlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const 
 {
 	BlasterGameMode = BlasterGameMode == nullptr ? GetWorld()->GetAuthGameMode<ABlasterGameMode>() : BlasterGameMode;
 	if (bElimmed || BlasterGameMode == nullptr) return;
-	float DamageToHealth = BlasterGameMode->CalculateDamage(InstigatorController, Controller, Damage);
+	float DamageToCause = BlasterGameMode->CalculateDamage(InstigatorController, Controller, Damage);
+	float SavedDamage = DamageToCause;
 	if (Shield > 0.f)
 	{
-		if (Shield >= Damage)
+		if (Shield >= DamageToCause)
 		{
-			Shield = FMath::Clamp(Shield - Damage, 0.f, MaxShield);
-			DamageToHealth = 0.f;
+			Shield = FMath::Clamp(Shield - DamageToCause, 0.f, MaxShield);
+			DamageToCause = 0.f;
 		}
 		else
 		{
-			DamageToHealth = FMath::Clamp(DamageToHealth - Shield, 0.f, Damage);
+			DamageToCause = FMath::Clamp(DamageToCause - Shield, 0.f, SavedDamage);
 			Shield = 0.f;
 		}
 	}
 
-	Health = FMath::Clamp(Health - DamageToHealth, 0.f, MaxHealth);
+	Health = FMath::Clamp(Health - DamageToCause, 0.f, MaxHealth);
 
 	UpdateHUDShield();
 	UpdateHUDHealth();
@@ -739,7 +740,7 @@ void ABlasterCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const 
 			BlasterGameMode->PlayerEliminated(this, BlasterPlayerController, AttackerController);
 		}
 	}
-	else if (Damage > 0.f)
+	else if (SavedDamage > 0.f)
 	{
 		PlayHitReactMontage();
 	}
@@ -771,6 +772,15 @@ void ABlasterCharacter::UpdateHUDAmmo()
 		BlasterPlayerController->SetHUDCarriedAmmo(Combat->CarriedAmmo);
 		BlasterPlayerController->SetHUDWeaponAmmo(Combat->EquippedWeapon->GetAmmo());
 	}
+}
+
+ETeam ABlasterCharacter::GetCrosshairTeam()
+{
+	ABlasterCharacter* BlasterCharacter = Cast<ABlasterCharacter>(this);
+	if (BlasterCharacter == nullptr) return ETeam::ET_NoTeam;
+
+	BlasterPlayerState = BlasterPlayerState == nullptr ? BlasterCharacter->GetPlayerState<ABlasterPlayerState>() : BlasterPlayerState;
+	return BlasterPlayerState ? BlasterPlayerState->GetTeam() : ETeam::ET_NoTeam;
 }
 
 void ABlasterCharacter::Elim(bool bPlayerLeftGame)
