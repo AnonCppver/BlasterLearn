@@ -889,6 +889,20 @@ void ABlasterCharacter::PollInit()
 		{
 			BlasterPlayerState->AddToScore(0.f);
 			BlasterPlayerState->AddToDefeats(0);
+			USkeletalMeshComponent* MeshComponent = GetMesh();
+			if (MeshComponent)
+			{
+				ETeam Team = BlasterPlayerState->GetTeam();
+				if (Team == ETeam::ET_RedTeam)
+				{
+					MeshComponent->SetOverlayMaterial(MRedTeam);
+				}
+				else if (Team == ETeam::ET_BlueTeam)
+				{
+					MeshComponent->SetOverlayMaterial(MBlueTeam);
+				}
+			}
+			
 			//TODO: 初始化人物头顶的名称显示
 		}
 	}

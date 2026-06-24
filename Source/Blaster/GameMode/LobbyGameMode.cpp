@@ -3,7 +3,7 @@
 
 #include "LobbyGameMode.h"
 #include "GameFramework/GameStateBase.h"
-//#include "MultiplayerSessionsSubsystem.h"
+#include "MultiplayerSessionsSubsystem.h"
 
 void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
 {
@@ -14,8 +14,8 @@ void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
 	UGameInstance* GameInstance = GetGameInstance();
 	if (GameInstance)
 	{
-		//UMultiplayerSessionsSubsystem* Subsystem = GameInstance->GetSubsystem<UMultiplayerSessionsSubsystem>();
-		//check(Subsystem);
+		UMultiplayerSessionsSubsystem* Subsystem = GameInstance->GetSubsystem<UMultiplayerSessionsSubsystem>();
+		check(Subsystem);
 
 		if (NumberOfPlayers == 2/*Subsystem->DesiredNumPublicConnections*/)
 		{
@@ -32,9 +32,23 @@ void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
 				}
 				bUseSeamlessTravel = true;
 
-				//FString MatchType = Subsystem->DesiredMatchType;
-				FString MatchType = TEXT("FreeShooting");
-				World->ServerTravel(FString("/Game/LowerSector_Mod/Maps/LowerSector_Mod?listen"));
+				FString MatchType = Subsystem->DesiredMatchType;
+				if(MatchType.IsEmpty())
+				{
+					MatchType = FString("FreeShooting");
+				}
+				if(MatchType=="FreeShooting")
+				{
+					World->ServerTravel(FString("/Game/Maps/FreeShooting?listen"));
+				}
+				else if(MatchType=="TeamShooting")
+				{
+					World->ServerTravel(FString("/Game/Maps/TeamShooting?listen"));
+				}
+				else if(MatchType=="SFE")
+				{
+					World->ServerTravel(FString("/Game/Maps/SFE?listen"));
+				}
 			}
 		}
 	}

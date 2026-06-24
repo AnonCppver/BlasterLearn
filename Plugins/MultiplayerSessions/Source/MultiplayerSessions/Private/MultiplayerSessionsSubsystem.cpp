@@ -39,6 +39,9 @@ void UMultiplayerSessionsSubsystem::CreateSession(const int32 NumPublicConnectio
     {
         GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Emerald, FString(TEXT("CreateSession")));
     }
+    DesiredNumPublicConnections = NumPublicConnections;
+    DesiredMatchType = MatchType;
+
     if (ensure(OnlineSessionInterface))
     {
         if (OnlineSessionInterface->GetNamedSession(NAME_GameSession))
@@ -88,7 +91,7 @@ void UMultiplayerSessionsSubsystem::OnCreateSessionComplete(FName SessionName, b
     {
         GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Emerald, FString(TEXT("OnCreateSessionComplete")));
     }
-    CompleteSessionCreate(true);
+    CompleteSessionCreate(bWasSuccessful);
 }
 
 void UMultiplayerSessionsSubsystem::CompleteSessionCreate(const bool bWasSuccessful)

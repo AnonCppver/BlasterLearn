@@ -164,6 +164,11 @@ private:
     FDelegateHandle StartSessionCompleteDelegateHandle;
 
     bool bCreateSessionOnDestroy{ false };
+
+public:
     int32 LastNumPublicConnections{ 0 };
     FString LastMatchType{ TEXT("") };
+
+	int32 DesiredNumPublicConnections{ 0 };
+	FString DesiredMatchType{ TEXT("") };
 };

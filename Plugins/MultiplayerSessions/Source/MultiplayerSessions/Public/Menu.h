@@ -8,6 +8,7 @@
 #include "Menu.generated.h"
 
 class UButton;
+class UTextBlock;
 class UMultiplayerSessionsSubsystem;
 
 /**
@@ -26,7 +27,7 @@ protected:
 public:
     UFUNCTION(BlueprintCallable)
     void MenuSetup(int32 InNumPublicConnections = 4,
-        const FString& InMatchType = TEXT("FreeForAll"),
+        const FString& InMatchType = TEXT("FreeShooting"),
         const FString& InPathToLobby = TEXT("Lobby"));
 
     virtual bool Initialize() override;
@@ -79,6 +80,12 @@ private:
     UPROPERTY(meta = (BindWidget))
     UButton* QuitButton{ nullptr };
 
+    UPROPERTY(meta = (BindWidget))
+    UButton* GameModeButton{ nullptr };
+
+    UPROPERTY(meta = (BindWidget))
+    UTextBlock* GameModeText{ nullptr };
+
     UFUNCTION()
     void OnHostButtonClicked();
 
@@ -88,12 +95,21 @@ private:
     UFUNCTION()
     void OnQuitButtonClicked();
 
+    UFUNCTION()
+    void OnGameModeButtonClicked();
+
     UPROPERTY()
     UMultiplayerSessionsSubsystem* MultiplayerSessionsSubsystem{ nullptr };
 
     void MenuTearDown();
+    void UpdateGameModeText() const;
 
     int32 NumPublicConnections{ 4 };
-    FString MatchType{ TEXT("FreeForAll") };
+
+    FString MatchType{ TEXT("FreeShooting") };
     FString PathToLobby{ TEXT("") };
+
+	int32 GameModeIndex{ 0 };
+	TArray<FString> GameModes{ TEXT("FreeShooting"), TEXT("TeamShooting"), TEXT("SFE")};
+	TArray<FString> GameModeDisplayNames{ TEXT("个人射击"), TEXT("团队模式"), TEXT("SFE") };
 };

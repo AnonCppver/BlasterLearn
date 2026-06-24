@@ -155,6 +155,25 @@ private:
 	UPROPERTY()
 	class UInGameMenu* InGameMenu;
 
+	/*
+	* Inventory Input
+	*/
+	UPROPERTY(EditDefaultsOnly, Category = Input)
+	TObjectPtr<class UInputMappingContext> InventoryMappingContext;
+
+	UPROPERTY(EditDefaultsOnly, Category = Input)
+	TObjectPtr<class UInputAction> InventoryAction;
+
+	UPROPERTY(EditDefaultsOnly, Category = Input)
+	TEnumAsByte<ECollisionChannel> ItemTraceChannel;
+
+	TWeakObjectPtr<AActor> FocusedItem;
+	TWeakObjectPtr<AActor> LastFocusedItem;
+
+
+	void PrimaryInteract();
+
+	void TraceItem();
 public:
 	FORCEINLINE void setLevelStartingTime(float Time) { LevelStartingTime = Time; }
 };

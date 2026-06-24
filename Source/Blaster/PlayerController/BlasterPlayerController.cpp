@@ -20,6 +20,9 @@
 #include "Components/Image.h"
 #include "Blaster/HUD/InGameMenu.h"
 #include "Blaster/BlasterTypes/Announcement.h"
+#include <EnhancedInputComponent.h>
+#include <EnhancedInputSubsystems.h>
+#include "Blaster/Item/Item.h"
 
 void ABlasterPlayerController::BeginPlay()
 {
@@ -27,6 +30,13 @@ void ABlasterPlayerController::BeginPlay()
 
 	BlasterHUD = Cast<ABlasterHUD>(GetHUD());
 	ServerCheckMatchState();
+
+	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
+
+	if(IsValid(Subsystem))
+	{
+		Subsystem->AddMappingContext(InventoryMappingContext, 0);
+	}
 }
 
 void ABlasterPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -45,6 +55,7 @@ void ABlasterPlayerController::Tick(float DeltaTime)
 	CheckTimeSync(DeltaTime);
 	PollInit();
 	CheckPing(DeltaTime);
+	TraceItem();
 }
 
 void ABlasterPlayerController::SetHUDHealth(float Health, float MaxHealth)
@@ -575,6 +586,67 @@ void ABlasterPlayerController::SetupInputComponent()
 	if (InputComponent == nullptr) return;
 
 	InputComponent->BindAction("Quit", IE_Pressed, this, &ABlasterPlayerController::ShowReturnToMainMenu);
+
+	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent);
+	if (EnhancedInputComponent)
+	{
+		EnhancedInputComponent->BindAction(InventoryAction, ETriggerEvent::Triggered, this, &ABlasterPlayerController::PrimaryInteract);
+	}
+}
+
+void ABlasterPlayerController::PrimaryInteract()
+{
+	ABlasterCharacter* BlasterCharacter = Cast<ABlasterCharacter>(GetPawn());
+	if (BlasterCharacter)
+	{
+	}
+}
+
+void ABlasterPlayerController::TraceItem()
+{
+	if (!IsValid(GEngine)||!IsValid(GEngine->GameViewport)) return;
+	FVector2D ViewportSize;
+	GEngine->GameViewport->GetViewportSize(ViewportSize);
+	const FVector2D ViewportCenter(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
+
+	FVector TraceStart, TraceDirection;
+	if (!UGameplayStatics::DeprojectScreenToWorld(this, ViewportCenter, TraceStart, TraceDirection)) return;
+	FVector TraceEnd = TraceStart + TraceDirection * 800.f;
+
+	FHitResult HitResult;
+	GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ItemTraceChannel);
+	LastFocusedItem = FocusedItem;
+	FocusedItem = HitResult.GetActor();
+
+	if (FocusedItem == LastFocusedItem)return;
+
+	if (FocusedItem.IsValid())
+	{
+		AItem* Item = Cast<AItem>(FocusedItem.Get());
+		if (Item)
+		{
+			Item->ShowPickupWidget(true);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("FocusedItem not cast"));
+		}
+	}
+
+	if (LastFocusedItem.IsValid())
+	{
+		AItem* Item = Cast<AItem>(LastFocusedItem.Get());
+		if (Item)
+		{
+			Item->ShowPickupWidget(false);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("LastFocusedItem not cast"));
+		}
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("Tracing Items"));
 }
 
 void ABlasterPlayerController::ShowReturnToMainMenu()

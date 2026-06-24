@@ -2,6 +2,7 @@
 
 #include "Menu.h"
 #include "Components/Button.h"
+#include "Components/TextBlock.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "MultiplayerSessionsSubsystem.h"
 #include "OnlineSessionSettings.h"
@@ -14,6 +15,14 @@ void UMenu::MenuSetup(const int32 InNumPublicConnections, const FString& InMatch
 {
     NumPublicConnections = InNumPublicConnections;
     MatchType = InMatchType;
+    if (!GameModes.Find(MatchType, GameModeIndex))
+    {
+        GameModeIndex = 0;
+        if (GameModes.IsValidIndex(GameModeIndex))
+        {
+            MatchType = GameModes[GameModeIndex];
+        }
+    }
     PathToLobby = InPathToLobby;
 
     AddToViewport();
@@ -51,6 +60,8 @@ void UMenu::MenuSetup(const int32 InNumPublicConnections, const FString& InMatch
         MultiplayerSessionsSubsystem->MultiplayerOnDestroySessionComplete.AddDynamic(this, &UMenu::OnDestroySession);
         MultiplayerSessionsSubsystem->MultiplayerOnStartSessionComplete.AddDynamic(this, &UMenu::OnStartSession);
     }
+
+    UpdateGameModeText();
 }
 
 void UMenu::MenuTearDown()
@@ -88,6 +99,11 @@ bool UMenu::Initialize()
         {
             QuitButton->OnClicked.AddDynamic(this, &UMenu::OnQuitButtonClicked);
         }
+        if (GameModeButton)
+        {
+            GameModeButton->OnClicked.AddDynamic(this, &UMenu::OnGameModeButtonClicked);
+        }
+        UpdateGameModeText();
         return true;
     }
     else
@@ -309,5 +325,27 @@ void UMenu::OnQuitButtonClicked()
 
             UKismetSystemLibrary::QuitGame(this, PlayerController, EQuitPreference::Quit, false);
         }
+    }
+}
+
+void UMenu::OnGameModeButtonClicked()
+{
+    if (GameModes.Num() == 0)
+    {
+        return;
+    }
+
+    GameModeIndex = (GameModeIndex + 1) % GameModes.Num();
+    MatchType = GameModes[GameModeIndex];
+    UpdateGameModeText();
+}
+
+void UMenu::UpdateGameModeText() const
+{
+    if (GameModeText)
+    {
+        const FString DisplayName =
+            GameModeDisplayNames.IsValidIndex(GameModeIndex) ? GameModeDisplayNames[GameModeIndex] : MatchType;
+        GameModeText->SetText(FText::FromString(DisplayName));
     }
 }

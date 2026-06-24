@@ -244,6 +244,12 @@ private:
 	UPROPERTY(EditAnywhere)
 	UBoxComponent* RightFoot;
 
+	UPROPERTY(EditAnywhere, Category = "Outlook")
+	class UMaterial* MRedTeam;
+
+	UPROPERTY(EditAnywhere, Category = "Outlook")
+	class UMaterial* MBlueTeam;
+
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);
 	bool IsWeaponEquipped();
