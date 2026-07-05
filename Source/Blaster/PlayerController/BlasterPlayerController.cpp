@@ -10,6 +10,7 @@
 #include "Sound/SoundCue.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
+
 #include "Blaster/GameMode/BlasterGameMode.h"
 #include "Blaster/PlayerState/BlasterPlayerState.h"
 #include "Blaster/HUD/Announcement.h"
@@ -20,9 +21,13 @@
 #include "Components/Image.h"
 #include "Blaster/HUD/InGameMenu.h"
 #include "Blaster/BlasterTypes/Announcement.h"
+
 #include <EnhancedInputComponent.h>
 #include <EnhancedInputSubsystems.h>
+
 #include "Blaster/Item/Item.h"
+#include "Blaster/BlasterComponent/InvComponent.h"
+#include "Blaster/BlasterComponent/InvItemComponent.h"
 
 void ABlasterPlayerController::BeginPlay()
 {
@@ -37,6 +42,8 @@ void ABlasterPlayerController::BeginPlay()
 	{
 		Subsystem->AddMappingContext(InventoryMappingContext, 0);
 	}
+
+	InventoryComponent = FindComponentByClass<UInvComponent>();
 }
 
 void ABlasterPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -590,16 +597,27 @@ void ABlasterPlayerController::SetupInputComponent()
 	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent);
 	if (EnhancedInputComponent)
 	{
-		EnhancedInputComponent->BindAction(InventoryAction, ETriggerEvent::Triggered, this, &ABlasterPlayerController::PrimaryInteract);
+		EnhancedInputComponent->BindAction(InventoryAction, ETriggerEvent::Started, this, &ABlasterPlayerController::PrimaryInteract);
+		EnhancedInputComponent->BindAction(ToggleInventoryAction, ETriggerEvent::Started, this, &ABlasterPlayerController::ToggleInventory);
+
 	}
 }
 
 void ABlasterPlayerController::PrimaryInteract()
 {
-	ABlasterCharacter* BlasterCharacter = Cast<ABlasterCharacter>(GetPawn());
-	if (BlasterCharacter)
-	{
-	}
+	UE_LOG(LogTemp, Warning, TEXT("PrimaryInteract Key Pressed"));
+	if (!FocusedItem.IsValid())return;
+
+	UInvItemComponent* InvItemComponent = FocusedItem->FindComponentByClass< UInvItemComponent>();
+	if (!IsValid(InvItemComponent)||!InventoryComponent.IsValid())return;
+
+	InventoryComponent->TryAddItem(InvItemComponent);
+}
+
+void ABlasterPlayerController::ToggleInventory()
+{
+	if (!InventoryComponent.IsValid())return;
+	InventoryComponent->ToggleMenu();
 }
 
 void ABlasterPlayerController::TraceItem()
@@ -619,7 +637,8 @@ void ABlasterPlayerController::TraceItem()
 	FocusedItem = HitResult.GetActor();
 
 	if (FocusedItem == LastFocusedItem)return;
-
+	//UInvItemComponent* ItemComponent = FocusedActor->FindComponentByClass<UInvItemComponent>();
+	// ItemComponent->Show/Close
 	if (FocusedItem.IsValid())
 	{
 		AItem* Item = Cast<AItem>(FocusedItem.Get());
@@ -647,6 +666,19 @@ void ABlasterPlayerController::TraceItem()
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("Tracing Items"));
+}
+
+void ABlasterPlayerController::NoRoomInInventory()
+{
+	BlasterHUD = BlasterHUD == nullptr ? Cast<ABlasterHUD>(GetHUD()) : BlasterHUD;
+	bool bHUDValid = BlasterHUD &&
+		BlasterHUD->CharacterOverlay &&
+		BlasterHUD->CharacterOverlay->InfoMessage;
+	if (bHUDValid)
+	{
+		UInfoMessage* InfoMessage = BlasterHUD->CharacterOverlay->InfoMessage;
+		InfoMessage->SetMessage(TEXT("背包空间不足"));
+	}
 }
 
 void ABlasterPlayerController::ShowReturnToMainMenu()

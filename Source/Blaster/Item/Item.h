@@ -1,4 +1,4 @@
-
+// 可以被拾取的物品
 #pragma once
 
 #include "CoreMinimal.h"
@@ -26,6 +26,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Properties")
 	class UMaterial* PickupWidgetMaterial;
+
+	UPROPERTY(EditAnywhere, Category = "Properties")
+	class UInvItemComponent* InvItemComponent;
 
 public:	
 	virtual void Tick(float DeltaTime) override;

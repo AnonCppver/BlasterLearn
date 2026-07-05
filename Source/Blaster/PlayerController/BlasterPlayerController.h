@@ -156,24 +156,32 @@ private:
 	class UInGameMenu* InGameMenu;
 
 	/*
-	* Inventory Input
+	* Inventory
 	*/
-	UPROPERTY(EditDefaultsOnly, Category = Input)
+	UPROPERTY(EditDefaultsOnly, Category = Inventory)
 	TObjectPtr<class UInputMappingContext> InventoryMappingContext;
 
-	UPROPERTY(EditDefaultsOnly, Category = Input)
+	UPROPERTY(EditDefaultsOnly, Category = Inventory)
 	TObjectPtr<class UInputAction> InventoryAction;
 
-	UPROPERTY(EditDefaultsOnly, Category = Input)
+	UPROPERTY(EditDefaultsOnly, Category = Inventory)
+	TObjectPtr<class UInputAction> ToggleInventoryAction;
+
+	UPROPERTY(EditDefaultsOnly, Category = Inventory)
 	TEnumAsByte<ECollisionChannel> ItemTraceChannel;
+
+	TWeakObjectPtr<class UInvComponent> InventoryComponent;
 
 	TWeakObjectPtr<AActor> FocusedItem;
 	TWeakObjectPtr<AActor> LastFocusedItem;
 
-
 	void PrimaryInteract();
 
 	void TraceItem();
+
+	void NoRoomInInventory();
 public:
+	UFUNCTION(BlueprintCallable)
+	void ToggleInventory();
 	FORCEINLINE void setLevelStartingTime(float Time) { LevelStartingTime = Time; }
 };

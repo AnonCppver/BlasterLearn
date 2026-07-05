@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "InfoMessage.h"
 #include "CharacterOverlay.generated.h"
 
 /**
@@ -55,4 +56,14 @@ public:
 
 	UPROPERTY(meta = (BindWidgetAnim), Transient)
 	UWidgetAnimation* HighPingAnimation;
+
+	UPROPERTY(meta = (BindWidget))
+	UInfoMessage* InfoMessage;
+
+
+	UFUNCTION()
+	void OnNoRoom();
+
+	virtual void NativeOnInitialized() override;
+
 };

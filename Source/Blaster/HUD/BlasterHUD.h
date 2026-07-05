@@ -48,6 +48,7 @@ public:
 
 
 	void AddElimAnnouncement(FString Attacker, FString Victim);
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -73,6 +74,9 @@ private:
 
 	UPROPERTY()
 	TArray<UElimAnnouncement*> ElimMessages;
+
+	UFUNCTION()
+	void OnNoRoom();
 public:
 	FORCEINLINE void SetHUDPackage(const FHUDPackage& Package) { HUDPackage = Package; }
 };

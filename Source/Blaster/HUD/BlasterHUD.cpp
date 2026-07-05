@@ -12,6 +12,12 @@ void ABlasterHUD::BeginPlay()
 	Super::BeginPlay();
 }
 
+void ABlasterHUD::OnNoRoom()
+{
+	if (!IsValid(CharacterOverlay->InfoMessage)) return;
+	CharacterOverlay->InfoMessage->SetMessage(TEXT("背包空间不足"));
+}
+
 void ABlasterHUD::AddCharacterOverlay()
 {
 	APlayerController* PlayerController = GetOwningPlayerController();

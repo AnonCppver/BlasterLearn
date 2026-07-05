@@ -3,6 +3,7 @@
 
 #include "Item.h"
 #include "Components/WidgetComponent.h"
+#include "Blaster/BlasterComponent/InvItemComponent.h"
 
 AItem::AItem()
 {
@@ -13,6 +14,8 @@ AItem::AItem()
 
 	PickupWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("PickupWidget"));
 	PickupWidget->SetupAttachment(RootComponent);
+
+	InvItemComponent = CreateDefaultSubobject<UInvItemComponent>(TEXT("InvItemComponent"));
 }
 
 void AItem::BeginPlay()
