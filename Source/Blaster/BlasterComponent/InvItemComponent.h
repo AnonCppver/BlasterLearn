@@ -23,8 +23,8 @@ public:
 	void PickedUp();
 protected:
 
-	//UFUNCTION(BlueprintImplementableEvent, Category = "Inventory")
-	//void OnPickedUp();
+	UFUNCTION(BlueprintImplementableEvent, Category = "Inventory")
+	void OnPickedUp();
 
 private:
 

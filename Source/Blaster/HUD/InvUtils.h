@@ -8,6 +8,8 @@
 #include "Blaster/BlasterComponent/InvItemComponent.h"
 #include "InvUtils.generated.h"
 
+class UHoverItem;
+class UInventoryBase;
 /**
  * 
  */
@@ -21,10 +23,32 @@ public:
 	static FIntPoint GetPositionFromIndex(int32 Index, int32 Col);
 
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	static FVector2D GetWidgetPosition(UWidget* Widget);
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	static FVector2D GetWidgetSize(UWidget* Widget);
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	static bool IsWithinBounds(const FVector2D& BoundaryPos, const FVector2D& WidgetSize, const FVector2D& MousePos);
+
+	static FVector2D GetClampedWidgetPosition(const FVector2D& Boundary, const FVector2D& WidgetSize, const FVector2D& MousePos);
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	static UInvComponent* GetInventoryComponent(const APlayerController* PlayerController);
 
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	static EInvItemCategory GetItemCategoryFromItemComp(UInvItemComponent* ItemComp);
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	static void ItemHovered(APlayerController* PC, UInvItem* Item);
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	static void ItemUnhovered(APlayerController* PC);
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	static UHoverItem* GetHoverItem(APlayerController* PC);
+
+	static UInventoryBase* GetInventoryWidget(APlayerController* PC);
 
 	template<typename T, typename FuncT>
 	static void ForEach2D(TArray<T>& Array, int32 Index, const FIntPoint& Range2D, int32 GridColumns, const FuncT& Function);

@@ -115,12 +115,12 @@ void UInvComponent::TryAddItem(UInvItemComponent* ItemComponent)
 		NoRoomInInventory.Broadcast();
 		return;
 	}
-
+	UE_LOG(LogTemp, Warning, TEXT("remainder %d"), Result.Remainder);
 	if (Result.Item.IsValid() && Result.bStackable)
 	{
 		// Add stacks to an item that already exists in the inventory. We only want to update the stack count,
 		// not create a new item of this type.
-		//OnStackChange.Broadcast(Result);
+		OnStackChanged.Broadcast(Result);
 		Server_AddStacksToItem(ItemComponent, Result.TotalRoomToFill, Result.Remainder);
 	}
 	else if (Result.TotalRoomToFill > 0)
@@ -133,26 +133,26 @@ void UInvComponent::TryAddItem(UInvItemComponent* ItemComponent)
 void UInvComponent::Server_AddNewItem_Implementation(UInvItemComponent* ItemComponent, int32 StackCount, int32 Remainder)
 {
 	UInvItem* NewItem = InventoryList.AddEntry(ItemComponent);
-	//NewItem->SetTotalStackCount(StackCount);
+	NewItem->SetTotalStackCount(StackCount);
 
 	if (GetOwner()->GetNetMode() == NM_ListenServer || GetOwner()->GetNetMode() == NM_Standalone)
 	{
 		OnItemAdded.Broadcast(NewItem);
 	}
-/*
+	
 	if (Remainder == 0)
 	{
 		ItemComponent->PickedUp();
 	}
-	else if (FInv_StackableFragment* StackableFragment = ItemComponent->GetItemManifestMutable().GetFragmentOfTypeMutable<FInv_StackableFragment>())
+	else if (FInvStackableFragment* StackableFragment = ItemComponent->GetItemManifestMutable().GetFragmentOfTypeMutable<FInvStackableFragment>())
 	{
 		StackableFragment->SetStackCount(Remainder);
-	}*/
+	}
 }
 
 void UInvComponent::Server_AddStacksToItem_Implementation(UInvItemComponent* ItemComponent, int32 StackCount, int32 Remainder)
 {
-	/*const FGameplayTag& ItemType = IsValid(ItemComponent) ? ItemComponent->GetItemManifest().GetItemType() : FGameplayTag::EmptyTag;
+	const FGameplayTag& ItemType = IsValid(ItemComponent) ? ItemComponent->GetItemManifest().GetItemType() : FGameplayTag::EmptyTag;
 	UInvItem* Item = InventoryList.FindFirstItemByType(ItemType);
 	if (!IsValid(Item)) return;
 
@@ -162,10 +162,10 @@ void UInvComponent::Server_AddStacksToItem_Implementation(UInvItemComponent* Ite
 	{
 		ItemComponent->PickedUp();
 	}
-	else if (FInv_StackableFragment* StackableFragment = ItemComponent->GetItemManifestMutable().GetFragmentOfTypeMutable<FInv_StackableFragment>())
+	else if (FInvStackableFragment* StackableFragment = ItemComponent->GetItemManifestMutable().GetFragmentOfTypeMutable<FInvStackableFragment>())
 	{
 		StackableFragment->SetStackCount(Remainder);
-	}*/
+	}
 }
 
 

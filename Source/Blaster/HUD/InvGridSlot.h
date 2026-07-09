@@ -31,16 +31,16 @@ private:
 	TObjectPtr<UImage> SlotImage;
 
 	UPROPERTY(EditAnywhere, Category = "Inventory")
-	float OpacityUnoccupied;
+	FSlateBrush Brush_Unoccupied;
 
 	UPROPERTY(EditAnywhere, Category = "Inventory")
-	float OpacityOccupied;
+	FSlateBrush Brush_Occupied;
 
 	UPROPERTY(EditAnywhere, Category = "Inventory")
-	float OpacitySelected;
+	FSlateBrush Brush_Selected;
 
 	UPROPERTY(EditAnywhere, Category = "Inventory")
-	float OpacityGrayedOut;
+	FSlateBrush Brush_GrayedOut;
 
 	EInvGridSlotState GridSlotState;
 
@@ -65,8 +65,8 @@ public:
 	FORCEINLINE bool IsAvailable() const { return bAvailable; }
 	FORCEINLINE void SetAvailable(bool bIsAvailable) { bAvailable = bIsAvailable; }
 
-	void SetImageOpacityUnoccupied();
-	void SetImageOpacityOccupied();
-	void SetImageOpacitySelected();
-	void SetImageOpacityGrayedOut();
+	void SetOccupiedTexture();
+	void SetUnoccupiedTexture();
+	void SetSelectedTexture();
+	void SetGrayedOutTexture();
 };

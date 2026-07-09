@@ -40,6 +40,7 @@ struct FInvSlotAvailabilityResult
 	TArray<FInvSlotAvailability> SlotAvailabilities;
 };
 
+// 将每个格子分为四个象限，
 UENUM(BlueprintType)
 enum class EInvTileQuadrant : uint8
 {
@@ -56,13 +57,13 @@ struct FInvTileParameters
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Inventory")
-	FIntPoint TileCoordinats{};
+	FIntPoint TileCoordinats{};// 物品在格子中的坐标
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Inventory")
-	int32 TileIndex{ INDEX_NONE };
+	int32 TileIndex{ INDEX_NONE };// 坐标对应的格子索引
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Inventory")
-	EInvTileQuadrant TileQuadrant{ EInvTileQuadrant::None };
+	EInvTileQuadrant TileQuadrant{ EInvTileQuadrant::None };// 坐标对应的格子象限
 };
 
 inline bool operator==(const FInvTileParameters& A, const FInvTileParameters& B)
@@ -75,12 +76,12 @@ struct FInvSpaceQueryResult
 {
 	GENERATED_BODY()
 
-	// True if the space queried has no items in it
+	// 空间没有物品为true
 	bool bHasSpace{ false };
 
-	// Valid if there's a single item we can swap with
+	// 如果有一个可以交换的物品，则为有效
 	TWeakObjectPtr<UInvItem> ValidItem = nullptr;
 
-	// Upper left index of the valid item, if there is one
+	// 如果有一个有效物品，则为其左上角索引
 	int32 UpperLeftIndex{ INDEX_NONE };
 };

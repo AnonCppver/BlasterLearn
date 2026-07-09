@@ -4,27 +4,27 @@
 #include "InvGridSlot.h"
 #include "Components/Image.h"
 
-void UInvGridSlot::SetImageOpacityUnoccupied()
-{
-	GridSlotState = EInvGridSlotState::Unoccupied;
-	SlotImage->SetRenderOpacity(OpacityUnoccupied);
-}
-
-void UInvGridSlot::SetImageOpacityOccupied()
+void UInvGridSlot::SetOccupiedTexture()
 {
 	GridSlotState = EInvGridSlotState::Occupied;
-	SlotImage->SetRenderOpacity(OpacityOccupied);
+	SlotImage->SetBrush(Brush_Occupied);
 }
 
-void UInvGridSlot::SetImageOpacitySelected()
+void UInvGridSlot::SetUnoccupiedTexture()
+{
+	GridSlotState = EInvGridSlotState::Unoccupied;
+	SlotImage->SetBrush(Brush_Unoccupied);
+}
+
+void UInvGridSlot::SetSelectedTexture()
 {
 	GridSlotState = EInvGridSlotState::Selected;
-	SlotImage->SetRenderOpacity(OpacitySelected);
+	SlotImage->SetBrush(Brush_Selected);
 }
 
-void UInvGridSlot::SetImageOpacityGrayedOut()
+void UInvGridSlot::SetGrayedOutTexture()
 {
 	GridSlotState = EInvGridSlotState::GrayedOut;
-	SlotImage->SetRenderOpacity(OpacityGrayedOut);
+	SlotImage->SetBrush(Brush_GrayedOut);
 }
 

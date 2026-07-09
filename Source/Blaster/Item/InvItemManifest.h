@@ -57,7 +57,7 @@ private:
 //	UPROPERTY(EditAnywhere, Category = "Inventory")
 //	TSubclassOf<AActor> PickupActorClass;
 //
-//	void ClearFragments();
+	void ClearFragments();
 };
 
 

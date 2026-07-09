@@ -46,11 +46,11 @@ UInvItem* FInvItemManifest::Manifest(UObject* NewOuter)
 //	ItemComp->InitItemManifest(*this);
 //}
 //
-//void FInvItemManifest::ClearFragments()
-//{
-//	for (auto& Fragment : Fragments)
-//	{
-//		Fragment.Reset();
-//	}
-//	Fragments.Empty();
-//}
+void FInvItemManifest::ClearFragments()
+{
+	for (auto& Fragment : Fragments)
+	{
+		Fragment.Reset();
+	}
+	Fragments.Empty();
+}

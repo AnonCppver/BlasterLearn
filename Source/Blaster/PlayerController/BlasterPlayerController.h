@@ -92,7 +92,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Sound")
 	class USoundCue* EliminationSound;
 
-	// Match time synchronization variables
+	// 游戏时间同步
 	float LevelStartingTime = 0.f;
 	float MatchTime = 0.f;
 	float WarmupTime = 0.f;

@@ -24,6 +24,7 @@ void UInvItemComponent::InitItemManifest(FInvItemManifest CopyOfManifest)
 
 void UInvItemComponent::PickedUp()
 {
-	//OnPickedUp();
+	OnPickedUp();
+	UE_LOG(LogTemp, Warning, TEXT("invitemcomponent::pickup"));
 	GetOwner()->Destroy();
 }
