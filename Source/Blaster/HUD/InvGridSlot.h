@@ -8,6 +8,7 @@
 #include "InvGridSlot.generated.h"
 
 class UImage;
+class UInvItemPopUp;
 
 UENUM(BlueprintType)
 enum class EInvGridSlotState : uint8
@@ -17,6 +18,8 @@ enum class EInvGridSlotState : uint8
 	Selected,
 	GrayedOut
 };
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FGridSlotEvent, int32, GridIndex, const FPointerEvent&, MouseEvent);
 
 /**
  * 
@@ -50,9 +53,15 @@ private:
 	bool bAvailable{ true };
 
 	TWeakObjectPtr<UInvItem> InventoryItem;
+	TWeakObjectPtr<UInvItemPopUp> ItemPopUp;
 
-
+	UFUNCTION()
+	void OnItemPopUpDestruct(UUserWidget* Menu);
 public:
+	virtual void NativeOnMouseEnter(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) override;
+	virtual void NativeOnMouseLeave(const FPointerEvent& MouseEvent) override;
+	virtual FReply NativeOnMouseButtonDown(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) override;
+
 	FORCEINLINE void SetTileIndex(int32 Index) { TileIndex = Index; }
 	FORCEINLINE int32 GetTileIndex() const { return TileIndex; }
 	FORCEINLINE EInvGridSlotState GetGridSlotState() const{ return GridSlotState; }
@@ -64,9 +73,15 @@ public:
 	FORCEINLINE void SetFirstGridIndex(int32 Index) { FirstGridIndex = Index; }
 	FORCEINLINE bool IsAvailable() const { return bAvailable; }
 	FORCEINLINE void SetAvailable(bool bIsAvailable) { bAvailable = bIsAvailable; }
+	void SetItemPopUp(UInvItemPopUp* PopUp);
+	UInvItemPopUp* GetItemPopUp() const;
 
 	void SetOccupiedTexture();
 	void SetUnoccupiedTexture();
 	void SetSelectedTexture();
 	void SetGrayedOutTexture();
+
+	FGridSlotEvent GridSlotClicked;
+	FGridSlotEvent GridSlotHovered;
+	FGridSlotEvent GridSlotUnhovered;
 };

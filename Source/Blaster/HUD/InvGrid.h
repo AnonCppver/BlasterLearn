@@ -13,6 +13,7 @@ class UInvItemComponent;
 class UInvItem;
 class UInvSlottedItem;
 class UHoverItem;
+class UInvItemPopUp;
 struct FInvGridFragment;
 struct FInvImageFragment;
 struct FInvItemManifest;
@@ -36,6 +37,7 @@ private:
 	TMap<int32, TObjectPtr<UInvSlottedItem>> SlottedItems;
 
 	TWeakObjectPtr<UInvComponent> InvComponent;
+	TWeakObjectPtr<UCanvasPanel> OwningCanvasPanel;
 
 	// classes
 	UPROPERTY(EditAnywhere, Category = "Grids")
@@ -49,6 +51,27 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UHoverItem> HoverItem;
+
+	UPROPERTY(EditAnywhere, Category = "Inventory")
+	TSubclassOf<UInvItemPopUp> ItemPopUpClass;
+
+	UPROPERTY()
+	TObjectPtr<UInvItemPopUp> ItemPopUp;
+
+	UPROPERTY(EditAnywhere, Category = "Inventory")
+	FVector2D ItemPopUpOffset{ 20.f, 20.f };
+
+	UPROPERTY(EditAnywhere, Category = "Inventory")
+	TSubclassOf<UUserWidget> VisibleCursorWidgetClass;
+
+	UPROPERTY(EditAnywhere, Category = "Inventory")
+	TSubclassOf<UUserWidget> HiddenCursorWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<UUserWidget> VisibleCursorWidget;
+
+	UPROPERTY()
+	TObjectPtr<UUserWidget> HiddenCursorWidget;
 
 	// 光标位置
 	FInvTileParameters TileParameters;
@@ -81,7 +104,7 @@ private:
 	void AddItemAtIndex(UInvItem* NewItem, int32 Index, bool bStackable, int32 StackAmount = 0);
 	void AddSlottedItemToCanvas(int32 Index, const FInvGridFragment* GridFragment,UInvSlottedItem* SlottedItem);
 	void UpdateGridSlots(UInvItem* NewItem, int32 Index, bool bStackable, int32 StackAmount = 0);
-	// 背包元素的操作事件
+	// 拿起的物品hover相关操作
 	bool IsRightClick(const FPointerEvent& MouseEvent) const;
 	bool IsLeftClick(const FPointerEvent& MouseEvent) const;
 	void PickUp(UInvItem* ClickedInventoryItem, const int32 GridIndex);
@@ -98,6 +121,19 @@ private:
 	void HighlightSlots(const int32 Index, const FIntPoint& Dimensions);
 	void UnHighlightSlots(const int32 Index, const FIntPoint& Dimensions);
 	void ChangeHoverType(const int32 Index, const FIntPoint& Dimensions, EInvGridSlotState GridSlotState);
+	// 拿起的物品放下相关操作
+	void PutDownOnIndex(const int32 Index);
+	void ClearHoverItem();
+	UUserWidget* GetVisibleCursorWidget();
+	UUserWidget* GetHiddenCursorWidget();
+	bool IsSameStackable(const UInvItem* ClickedInventoryItem) const;
+	void SwapWithHoverItem(UInvItem* ClickedInventoryItem, const int32 GridIndex);
+	bool ShouldSwapStackCounts(const int32 RoomInClickedSlot, const int32 HoveredStackCount, const int32 MaxStackSize) const;
+	void SwapStackCounts(const int32 ClickedStackCount, const int32 HoveredStackCount, const int32 Index);
+	bool ShouldConsumeHoverItemStacks(const int32 HoveredStackCount, const int32 RoomInClickedSlot) const;
+	void ConsumeHoverItemStacks(const int32 ClickedStackCount, const int32 HoveredStackCount, const int32 Index);
+	bool ShouldFillInStack(const int32 RoomInClickedSlot, const int32 HoveredStackCount) const;
+	void FillInStack(const int32 FillAmount, const int32 Remainder, const int32 Index);
 
 	bool HasRoomAtIndex(const UInvGridSlot* GridSlot,
 		const FIntPoint& Dimensions,
@@ -125,12 +161,43 @@ public:
 	EInvItemCategory GetItemCategory() const { return ItemCategory; }
 	FORCEINLINE bool MatchesCategory(UInvItem* Item) { return Item->GetItemManifest().GetItemCategory() == ItemCategory; }
 	void ConstructGrid();
+	void ShowCursor();
+	void HideCursor();
+	void SetOwningCanvas(UCanvasPanel* OwningCanvas);
+	void DropItem();
+	bool HasHoverItem() const;
+	UHoverItem* GetHoverItem() const;
+
 	UFUNCTION()
 	void AddItem(UInvItem* Item);
+
 	UFUNCTION()
 	void AddStacks(const FInvSlotAvailabilityResult& Result);
+
 	UFUNCTION()
 	void OnSlottedItemClicked(int32 GridIndex, const FPointerEvent& MouseEvent);
+
+	UFUNCTION()
+	void CreateItemPopUp(const int32 GridIndex);
+
+	UFUNCTION()
+	void OnPopUpMenuSplit(int32 SplitAmount, int32 Index);
+
+	UFUNCTION()
+	void OnPopUpMenuDrop(int32 Index);
+
+	UFUNCTION()
+	void OnPopUpMenuConsume(int32 Index);
+
+	UFUNCTION()
+	void OnGridSlotClicked(int32 GridIndex, const FPointerEvent& MouseEvent);
+
+	// 鼠标悬停在格子上时的回调函数
+	UFUNCTION()
+	void OnGridSlotHovered(int32 GridIndex, const FPointerEvent& MouseEvent);
+
+	UFUNCTION()
+	void OnGridSlotUnhovered(int32 GridIndex, const FPointerEvent& MouseEvent);
 
 
 	FInvSlotAvailabilityResult HasRoomForItem(const UInvItemComponent* ItemComponent);

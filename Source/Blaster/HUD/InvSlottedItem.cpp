@@ -2,7 +2,8 @@
 
 
 #include "InvSlottedItem.h"
-#include "Blaster/HUD/InvItem.h"
+#include "InvItem.h"
+#include "InvUtils.h"
 
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
@@ -15,12 +16,12 @@ FReply UInvSlottedItem::NativeOnMouseButtonDown(const FGeometry& MyGeometry, con
 
 void UInvSlottedItem::NativeOnMouseEnter(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
 {
-	//UInv_InventoryStatics::ItemHovered(GetOwningPlayer(), InventoryItem.Get());
+	UInvUtils::ItemHovered(GetOwningPlayer(), InventoryItem.Get());
 }
 
 void UInvSlottedItem::NativeOnMouseLeave(const FPointerEvent& MouseEvent)
 {
-	//UInv_InventoryStatics::ItemUnhovered(GetOwningPlayer());
+	UInvUtils::ItemUnhovered(GetOwningPlayer());
 }
 
 void UInvSlottedItem::SetInventoryItem(UInvItem* Item)

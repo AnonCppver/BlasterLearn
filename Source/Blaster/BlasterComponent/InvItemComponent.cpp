@@ -7,6 +7,7 @@
 UInvItemComponent::UInvItemComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+	PickupMessage = FString("E - 拾起");
 	SetIsReplicatedByDefault(true);
 }
 

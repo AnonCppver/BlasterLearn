@@ -11,7 +11,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(BlueprintType, Blueprintable)
 class BLASTER_API UInvItem : public UObject
 {
 	GENERATED_BODY()
@@ -23,12 +23,12 @@ public:
 	const FInvItemManifest& GetItemManifest() const { return ItemManifest.Get<FInvItemManifest>(); }
 	FInvItemManifest& GetItemManifestMutable() { return ItemManifest.GetMutable<FInvItemManifest>(); }
 	bool IsStackable() const;
-//	bool IsConsumable() const;
+	bool IsConsumable() const;
 	int32 GetTotalStackCount() const { return TotalStackCount; }
 	void SetTotalStackCount(int32 Count) { TotalStackCount = Count; }
 private:
 
-	UPROPERTY(VisibleAnywhere, meta = (BaseStruct = "/Script/Inventory.InvItemManifest"), Replicated)
+	UPROPERTY(VisibleAnywhere, meta = (BaseStruct = "/Script/Blaster.InvItemManifest"), Replicated)
 	FInstancedStruct ItemManifest;
 
 	UPROPERTY(Replicated)

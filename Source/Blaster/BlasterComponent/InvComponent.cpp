@@ -118,14 +118,11 @@ void UInvComponent::TryAddItem(UInvItemComponent* ItemComponent)
 	UE_LOG(LogTemp, Warning, TEXT("remainder %d"), Result.Remainder);
 	if (Result.Item.IsValid() && Result.bStackable)
 	{
-		// Add stacks to an item that already exists in the inventory. We only want to update the stack count,
-		// not create a new item of this type.
 		OnStackChanged.Broadcast(Result);
 		Server_AddStacksToItem(ItemComponent, Result.TotalRoomToFill, Result.Remainder);
 	}
 	else if (Result.TotalRoomToFill > 0)
 	{
-		// This item type doesn't exist in the inventory. Create a new one and update all pertinent slots.
 		Server_AddNewItem(ItemComponent, Result.bStackable ? Result.TotalRoomToFill : 0, Result.Remainder);
 	}
 }
@@ -168,4 +165,52 @@ void UInvComponent::Server_AddStacksToItem_Implementation(UInvItemComponent* Ite
 	}
 }
 
+void UInvComponent::Server_DropItem_Implementation(UInvItem* Item, int32 StackCount)
+{
+	const int32 NewStackCount = Item->GetTotalStackCount() - StackCount;
+	if (NewStackCount <= 0)
+	{
+		InventoryList.RemoveEntry(Item);
+	}
+	else
+	{
+		Item->SetTotalStackCount(NewStackCount);
+	}
 
+	SpawnDroppedItem(Item, StackCount);
+}
+
+void UInvComponent::SpawnDroppedItem(UInvItem* Item, int32 StackCount)
+{
+	const APawn* OwningPawn = OwningController->GetPawn();
+	FVector RotatedForward = OwningPawn->GetActorForwardVector();
+	RotatedForward = RotatedForward.RotateAngleAxis(FMath::FRandRange(DropSpawnAngleMin, DropSpawnAngleMax), FVector::UpVector);
+	FVector SpawnLocation = OwningPawn->GetActorLocation() + RotatedForward * FMath::FRandRange(DropSpawnDistanceMin, DropSpawnDistanceMax);
+	SpawnLocation.Z -= RelativeSpawnElevation;
+	const FRotator SpawnRotation = FRotator::ZeroRotator;
+
+	FInvItemManifest& ItemManifest = Item->GetItemManifestMutable();
+	if (FInvStackableFragment* StackableFragment = ItemManifest.GetFragmentOfTypeMutable<FInvStackableFragment>())
+	{
+		StackableFragment->SetStackCount(StackCount);
+	}
+	ItemManifest.SpawnPickupActor(this, SpawnLocation, SpawnRotation);
+}
+
+void UInvComponent::Server_ConsumeItem_Implementation(UInvItem* Item)
+{
+	const int32 NewStackCount = Item->GetTotalStackCount() - 1;
+	if (NewStackCount <= 0)
+	{
+		InventoryList.RemoveEntry(Item);
+	}
+	else
+	{
+		Item->SetTotalStackCount(NewStackCount);
+	}
+
+	if (FInvConsumableFragment* ConsumableFragment = Item->GetItemManifestMutable().GetFragmentOfTypeMutable<FInvConsumableFragment>())
+	{
+		ConsumableFragment->OnConsume(OwningController.Get());
+	}
+}

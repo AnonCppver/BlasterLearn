@@ -9,11 +9,6 @@
 
 #include "InvItemManifest.generated.h"
 
-/**
- * The Item Manifest contains all of the necessary data
- * for creating a new Inventory Item
- */
-
 class UInvItem;
 class UInvCompositeBase;
 
@@ -26,8 +21,8 @@ struct BLASTER_API FInvItemManifest
 	UInvItem* Manifest(UObject* NewOuter);
 	EInvItemCategory GetItemCategory() const { return ItemCategory; }
 	FGameplayTag GetItemType() const { return ItemType; }
-//	void AssimilateInventoryFragments(UInvCompositeBase* Composite) const;
-//
+	void AssimilateInventoryFragments(UInvCompositeBase* Composite) const;
+
 	template<typename T> requires std::derived_from<T, FInvFragment>
 	const T* GetFragmentOfTypeWithTag(const FGameplayTag& FragmentTag) const;
 
@@ -40,7 +35,7 @@ struct BLASTER_API FInvItemManifest
 	template<typename t> requires std::derived_from<t, FInvFragment>
 	TArray<const t*> GetAllFragmentsOfType() const;
 
-//	void SpawnPickupActor(const UObject* WorldContextObject, const FVector& SpawnLocation, const FRotator& SpawnRotation);
+	void SpawnPickupActor(const UObject* WorldContextObject, const FVector& SpawnLocation, const FRotator& SpawnRotation);
 
 private:
 
@@ -54,9 +49,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Inventory", meta = (Categories = "GameItems"))
 	FGameplayTag ItemType;
 
-//	UPROPERTY(EditAnywhere, Category = "Inventory")
-//	TSubclassOf<AActor> PickupActorClass;
-//
+	UPROPERTY(EditAnywhere, Category = "Inventory")
+	TSubclassOf<AActor> PickupActorClass;
+
 	void ClearFragments();
 };
 

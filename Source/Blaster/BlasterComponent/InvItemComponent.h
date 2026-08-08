@@ -21,6 +21,7 @@ public:
 	FInvItemManifest GetItemManifest() const { return ItemManifest; }
 	FInvItemManifest& GetItemManifestMutable() { return ItemManifest; }
 	void PickedUp();
+	FString GetPickupMessage() const { return PickupMessage; }
 protected:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Inventory")
@@ -30,4 +31,7 @@ private:
 
 	UPROPERTY(Replicated, EditAnywhere, Category = "Inventory")
 	FInvItemManifest ItemManifest;
+
+	UPROPERTY(EditAnywhere, Category = "Inventory")
+	FString PickupMessage;
 };

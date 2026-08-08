@@ -23,3 +23,8 @@ bool UInvItem::IsStackable() const
 	return StackableFragment != nullptr;
 }	
 
+bool UInvItem::IsConsumable() const
+{
+	return GetItemManifest().GetItemCategory() == EInvItemCategory::Consumable;
+}
+

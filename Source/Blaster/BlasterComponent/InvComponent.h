@@ -15,8 +15,8 @@ class UInvItem;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FInventoryItemChange, UInvItem*, Item);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FNoRoomInInventory);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FStackChange, const FInvSlotAvailabilityResult&, Result);
-//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FItemEquipStatusChanged, UInvItem*, Item);
-//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FInventoryMenuToggled, bool, bOpen);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FItemEquipStatusChanged, UInvItem*, Item);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FInventoryMenuToggled, bool, bOpen);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable)
 class BLASTER_API UInvComponent : public UActorComponent
@@ -37,6 +37,14 @@ public:
 	UFUNCTION(Server, Reliable)
 	void Server_AddStacksToItem(UInvItemComponent* ItemComponent, int32 StackCount, int32 Remainder);
 
+	UFUNCTION(Server, Reliable)
+	void Server_DropItem(UInvItem* Item, int32 StackCount);
+
+	void SpawnDroppedItem(UInvItem* Item, int32 StackCount);
+
+	UFUNCTION(Server, Reliable)
+	void Server_ConsumeItem(UInvItem* Item);
+
 	void ToggleMenu();
 
 	void AddRepSubobj(UObject* Subobj);
@@ -47,6 +55,9 @@ public:
 	FInventoryItemChange OnItemRemoved;
 	FNoRoomInInventory NoRoomInInventory;
 	FStackChange OnStackChanged;
+	FItemEquipStatusChanged OnItemEquipped;
+	FItemEquipStatusChanged OnItemUnequipped;
+	FInventoryMenuToggled OnInventoryMenuToggled;
 
 protected:
 	virtual void BeginPlay() override;
@@ -70,5 +81,20 @@ private:
 	// Items
 	UPROPERTY(Replicated)
 	FInvFastArray InventoryList;
+
+	UPROPERTY(EditAnywhere, Category = "Inventory")
+	float DropSpawnAngleMin = -85.f;
+
+	UPROPERTY(EditAnywhere, Category = "Inventory")
+	float DropSpawnAngleMax = 85.f;
+
+	UPROPERTY(EditAnywhere, Category = "Inventory")
+	float DropSpawnDistanceMin = 10.f;
+
+	UPROPERTY(EditAnywhere, Category = "Inventory")
+	float DropSpawnDistanceMax = 50.f;
+
+	UPROPERTY(EditAnywhere, Category = "Inventory")
+	float RelativeSpawnElevation = 70.f;
 
 };
