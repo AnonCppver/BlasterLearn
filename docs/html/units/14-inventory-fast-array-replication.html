@@ -1,0 +1,28 @@
+<section class="section feature-section page-shell" id="unit-14" data-track-section>
+  <div class="feature-grid">
+    <div class="feature-media" data-reveal>
+      <span class="media-label">Delta Replication / FastArray</span>
+      <div class="diagram-stage"><div class="attachment-diagram" role="img" aria-label="FastArray 背包增量复制结构">
+        <div class="diagram-node"><strong>UInvComponent</strong><small>服务器权威背包组件</small></div><div class="diagram-arrow"></div>
+        <div class="diagram-node red"><strong>FInvFastArray</strong><small>FFastArraySerializer + TArray&lt;FInvEntry&gt;</small></div><div class="diagram-arrow"></div>
+        <div class="diagram-node"><strong>Delta Replication</strong><small>稳定 ID + MarkItemDirty / MarkArrayDirty</small></div><div class="diagram-arrow"></div>
+        <div class="diagram-node"><strong>UI Callbacks</strong><small>PostReplicatedAdd / Change / Remove</small></div>
+      </div></div>
+    </div>
+    <div class="feature-copy" data-reveal>
+      <div class="feature-number" aria-hidden="true">14</div>
+      <span class="micro-label">FFastArraySerializer / Delta</span>
+      <h2>FastArray 增量复制</h2>
+      <p class="feature-summary">普通复制 TArray 在集合变化时需要重新描述数组状态；<code>FFastArraySerializer</code> 为每个 FInvEntry 维护稳定复制标识，只传输新增、修改和删除条目。条目引用的 UInvItem 作为子对象独立复制 Manifest 与堆叠数据。</p>
+      <div class="tag-row"><span class="tag">FFastArraySerializer</span><span class="tag">MarkItemDirty</span><span class="tag">Replication ID</span><span class="tag">PostReplicatedAdd</span><span class="tag">ReplicateSubobjects</span></div>
+      <div class="compact-flow" aria-label="FastArray 增量复制链路"><span>服务器修改条目</span><b>→</b><span>MarkItemDirty</span><b>→</b><span>Delta Serialize</span><b>→</b><span>复制回调刷新 UI</span></div>
+      <ul class="key-list">
+        <li><b>01</b><span>普通 TArray 更适合小型整体状态；FastArray 用稳定 ID 识别条目，即使数组下标移动也能表达同一个逻辑物品。</span></li>
+        <li><b>02</b><span>新增或修改后调用 <code>MarkItemDirty</code>，删除或重排调用 MarkArrayDirty；只有显式标脏的数据进入增量复制。</span></li>
+        <li><b>03</b><span><code>PostReplicatedAdd</code>、PostReplicatedChange 和 PreReplicatedRemove 直接把集合差异转成 Grid UI 的增删改通知。</span></li>
+        <li><b>04</b><span>FastArray 同步“有哪些 UInvItem”，<code>ReplicateSubobjects</code> 同步每个 Item 的 Manifest 和 StackCount，集合与对象数据职责分离。</span></li>
+        <li><b>05</b><span>所有条目操作从服务器权威 InventoryList 发起；客户端回调只重建展示，不反向决定背包集合。</span></li>
+      </ul>
+    </div>
+  </div>
+</section>

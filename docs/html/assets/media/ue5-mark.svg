@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" role="img" aria-labelledby="title desc">
+  <title id="title">Unreal Engine 5.4 项目标识</title>
+  <desc id="desc">由圆环与 UE5 字样组成的项目主视觉</desc>
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="46%" r="56%">
+      <stop offset="0" stop-color="#f0442e" stop-opacity=".24"/>
+      <stop offset=".56" stop-color="#f0442e" stop-opacity=".04"/>
+      <stop offset="1" stop-color="#f0442e" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="soft-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="16" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <circle cx="600" cy="560" r="510" fill="url(#glow)"/>
+  <circle cx="600" cy="560" r="418" fill="none" stroke="#f2f0e9" stroke-opacity=".16" stroke-width="2"/>
+  <circle cx="600" cy="560" r="370" fill="#0b0b0b" stroke="#f2f0e9" stroke-width="16"/>
+  <circle cx="600" cy="560" r="334" fill="none" stroke="#f2f0e9" stroke-opacity=".13" stroke-width="2" stroke-dasharray="5 18"/>
+
+  <text x="600" y="625" fill="#f2f0e9" font-family="Impact, Haettenschweiler, Arial Narrow Bold, sans-serif" font-size="292" text-anchor="middle" letter-spacing="-12">UE5</text>
+  <rect x="434" y="680" width="332" height="7" fill="#f0442e" filter="url(#soft-glow)"/>
+  <text x="600" y="742" fill="#9b9992" font-family="Cascadia Code, Consolas, monospace" font-size="26" font-weight="700" text-anchor="middle" letter-spacing="11">UNREAL ENGINE 5.4</text>
+
+  <g fill="#f2f0e9" font-family="Cascadia Code, Consolas, monospace" font-size="18" font-weight="700" letter-spacing="4">
+    <text x="126" y="1045">MULTIPLAYER</text>
+    <text x="946" y="1045" text-anchor="end">C++ / BP</text>
+  </g>
+  <line x1="126" y1="1004" x2="1074" y2="1004" stroke="#f2f0e9" stroke-opacity=".18" stroke-width="2"/>
+  <rect x="586" y="992" width="28" height="28" fill="#f0442e" transform="rotate(45 600 1006)"/>
+</svg>

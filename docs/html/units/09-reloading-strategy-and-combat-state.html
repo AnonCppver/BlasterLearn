@@ -1,0 +1,23 @@
+<section class="section feature-section page-shell" id="unit-09" data-track-section>
+  <div class="feature-grid">
+    <div class="feature-media contain-media" data-reveal>
+      <span class="media-label">Strategy / Combat State</span>
+      <img src="assets/media/combat-state-reachability.png" alt="Unoccupied、Firing、Reloading 与 Switching 条件性可达关系">
+    </div>
+    <div class="feature-copy" data-reveal>
+      <div class="feature-number" aria-hidden="true">09</div>
+      <span class="micro-label">ServerReload / AnimNotify / Strategy</span>
+      <h2>换弹 Strategy 与状态机</h2>
+      <p class="feature-summary">客户端通过 <code>ServerReload</code> 请求进入 Reloading，服务器复制 <code>CombatState</code> 并播放对应 Montage。弹药不在按键时修改，而由 <code>AnimNotify</code> 在真实装填帧反向提交；装填 Strategy 决定一次性、逐发或持续充能规则。</p>
+      <div class="tag-row"><span class="tag">Reload Strategy</span><span class="tag">Animation Strategy</span><span class="tag">CombatState</span><span class="tag">AmountToReload</span><span class="tag">HUD Chain</span></div>
+      <div class="compact-flow" aria-label="换弹提交链路"><span>ServerReload</span><b>→</b><span>Reloading</span><b>→</b><span>AnimNotify</span><b>→</b><span>弹匣 / 备弹 / HUD</span></div>
+      <ul class="key-list">
+        <li><b>01</b><span>服务器验证武器、弹匣和备弹条件后复制 Reloading，<code>CombatState</code> 阻止换弹、射击和 Switching 非法并发。</span></li>
+        <li><b>02</b><span>装填 Strategy 管理一次性装填、逐发装填并预留持续充能；动画 Strategy 按 WeaponType 选择 Montage 和 Section。</span></li>
+        <li><b>03</b><span><code>AnimNotify</code> 从动画反向调用 FinishReloading 或单发 ShellReload，在动作到达装填点时才让服务器提交资源变化。</span></li>
+        <li><b>04</b><span><code>AmountToReload</code> 取弹匣空位与对应携带弹药的较小值；服务器扣备弹、调用 AddAmmo，再通过复制和客户端 RPC 更新两组 HUD。</span></li>
+        <li><b>05</b><span>霰弹枪每次通知只装一发，弹匣满或备弹为零时跳转结束段；Switching 同样由状态和动画通知控制挂点切换。</span></li>
+      </ul>
+    </div>
+  </div>
+</section>

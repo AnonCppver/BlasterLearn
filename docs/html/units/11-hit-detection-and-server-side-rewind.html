@@ -1,0 +1,89 @@
+<section class="section feature-section feature-section--priority page-shell" id="unit-11" data-track-section>
+  <div class="feature-grid">
+    <div class="feature-media" data-reveal>
+      <span class="media-label">Authority / Server-Side Rewind</span>
+      <div class="diagram-stage"><div class="attachment-diagram" role="img" aria-label="命中预测与服务器回溯确认链路">
+        <div class="diagram-node"><strong>Local Candidate Hit</strong><small>HitScan Trace 或 Projectile 本地弹道</small></div><div class="diagram-arrow"></div>
+        <div class="diagram-node red"><strong>Score Request</strong><small>轨迹参数 + GetServerTime − SingleTripTime</small></div><div class="diagram-arrow"></div>
+        <div class="diagram-node"><strong>Rewind HitBoxes</strong><small>环形缓冲历史帧 + ECC_HitBox</small></div><div class="diagram-arrow"></div>
+        <div class="diagram-node"><strong>ApplyDamage</strong><small>服务器确认身体或头部命中</small></div>
+      </div></div>
+    </div>
+    <div class="feature-copy" data-reveal>
+      <div class="feature-number" aria-hidden="true">11</div>
+      <span class="micro-label">HitBox / Ring Buffer / SSR</span>
+      <h2>命中确认与服务器回溯</h2>
+      <p class="feature-summary">客户端立即预测候选命中，并将轨迹与画面对应的服务器时间提交给服务器。服务器从固定容量环形缓冲区恢复目标骨骼 HitBox，在独立 <code>ECC_HitBox</code> 通道上重放射线或弹道，确认后才调用 <code>ApplyDamage()</code>。</p>
+      <div class="tag-row"><span class="tag">Server-Side Rewind</span><span class="tag">ECC_HitBox</span><span class="tag">Ring Buffer</span><span class="tag">ServerScoreRequest</span><span class="tag">ApplyDamage</span></div>
+      <div class="compact-flow" aria-label="服务器回溯链路"><span>本地预测</span><b>→</b><span>ServerScoreRequest</span><b>→</b><span>恢复历史 HitBox</span><b>→</b><span>ApplyDamage</span></div>
+      <ul class="key-list">
+        <li><b>01</b><span>主要骨骼配置固定 BoxComponent，只在回溯阶段启用 <code>ECC_HitBox</code>，与角色胶囊和普通 Mesh 碰撞隔离。</span></li>
+        <li><b>02</b><span>历史帧只在服务器 Tick；环形缓冲区复用固定内存，固定 HitBox 数组避免 TMap/链表分配，并且不重复保存 BoxExtent。</span></li>
+        <li><b>03</b><span>客户端使用过滤后的服务器时间和平均 SingleTripTime 计算 HitTime，降低瞬时 RTT 抖动对历史帧选择的影响。</span></li>
+        <li><b>04</b><span>HitScan 通过 <code>ServerScoreRequest</code> 提交 TraceStart、HitTarget 和目标；Projectile 提交 InitialVelocity 让服务器重建历史弹道。</span></li>
+        <li><b>05</b><span>服务器先检查头部 HitBox，再检查身体 HitBox，恢复目标当前姿态和碰撞设置后，以权威 Controller 调用 <code>ApplyDamage()</code>。</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="priority-deep-dive" data-reveal>
+    <header class="deep-dive-head">
+      <span class="micro-label">Priority Unit / 11</span>
+      <div>
+        <h3>从客户端画面时间回到服务器历史姿态</h3>
+        <p>回溯不是用 RPC 抵达服务器的时刻检测当前角色，而是重建玩家开火画面对应的历史世界，再由服务器重新确认命中。</p>
+      </div>
+    </header>
+
+    <div class="deep-dive-block">
+      <span class="deep-dive-index">01</span>
+      <div class="deep-dive-content">
+        <h4>时间同步：先确定“应该检查哪一帧”</h4>
+        <p>客户端记录请求发送时间 <code>T0</code>，服务器返回处理时刻 <code>Ts</code>，客户端在 <code>T1</code> 收到响应。由 <code>RTT = T1 - T0</code> 得到单程时延估计，再计算服务器时间偏移；开火请求最终携带 <code>HitTime = GetServerTime() - SingleTripTime</code>。</p>
+        <div class="algorithm-grid">
+          <div class="algorithm-card"><b>样本过滤</b><span>维护固定窗口的 RTT 样本，剔除无效值，按 RTT 排序后保留延迟较低的一半，再平均 SingleTripTime 与时间偏移，削弱瞬时网络抖动。</span></div>
+          <div class="algorithm-card"><b>时间语义</b><span>HitTime 对应射手看见并开火的画面；RPC 到达时间只代表网络传输结束，不能替代历史帧目标时间。</span></div>
+        </div>
+        <div class="formula-strip"><code>RTTᵢ = T1ᵢ − T0ᵢ</code><span>→</span><code>OneWayᵢ = RTTᵢ / 2</code><span>→</span><code>ServerDeltaᵢ = Tsᵢ + OneWayᵢ − T1ᵢ</code></div>
+      </div>
+    </div>
+
+    <div class="deep-dive-block">
+      <span class="deep-dive-index">02</span>
+      <div class="deep-dive-content">
+        <h4>历史帧：环形缓冲区 + 固定 HitBox 数组</h4>
+        <p>角色的 16 个语义 HitBox 以固定索引保存头、躯干、四肢的位置与旋转。历史帧使用预分配环形缓冲区：新帧直接写入 <code>Frames[WriteIndex]</code>，索引取模前进，容量满后覆盖最旧帧，因此插入与淘汰均为 <code>O(1)</code>。</p>
+        <div class="algorithm-grid">
+          <div class="algorithm-card"><b>连续内存</b><span>固定数组替代每帧 TMap，省去 FName 哈希、节点遍历与频繁分配；稳定索引也让帧间插值可以顺序访问缓存。</span></div>
+          <div class="algorithm-card"><b>固定数据复用</b><span>BoxExtent 在初始化阶段缓存一次，历史帧只记录随时间改变的 Location 与 Rotation，减少每帧复制量。</span></div>
+          <div class="algorithm-card"><b>仅服务器记录</b><span>历史帧只服务于权威命中确认；非 Authority 实例关闭 Lag Compensation Tick，也不分配回溯缓冲区。</span></div>
+          <div class="algorithm-card"><b>碰撞隔离</b><span>回溯期间只启用 <code>ECC_HitBox</code>，普通 Capsule 与 SkeletalMesh 不参与确认，避免动画碰撞与角色移动碰撞干扰结果。</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="deep-dive-block">
+      <span class="deep-dive-index">03</span>
+      <div class="deep-dive-content">
+        <h4>检索与插值：在两个服务器快照之间恢复姿态</h4>
+        <p>HitTime 早于最旧历史帧时直接拒绝，晚于最新帧时使用最新数据，命中精确时间戳时直接返回对应帧；位于 Older 与 Younger 之间时，按逻辑时间顺序执行二分查找，再对每个 HitBox 的位置与旋转做插值。</p>
+        <div class="formula-strip"><code>Fraction = Clamp((HitTime - Older.Time) / (Younger.Time - Older.Time), 0, 1)</code></div>
+        <p>环形缓冲区的物理下标会回绕，但通过“最旧帧 + 逻辑偏移”映射到实际槽位，仍可保持单调时间序列并进行二分查找，避免从最新帧逐节点扫描。</p>
+      </div>
+    </div>
+
+    <div class="deep-dive-block">
+      <span class="deep-dive-index">04</span>
+      <div class="deep-dive-content">
+        <h4>服务器确认：同一套历史姿态，两种轨迹重放</h4>
+        <p>服务器先缓存目标当前 HitBox 与 Mesh 碰撞状态，再把所有 Box 移动到历史帧。头部单独启用并执行第一次检测；未命中时再启用全身 Box。确认完成后无论结果如何都恢复当前姿态和碰撞，只有有效结果才以服务器权威 Controller 调用 <code>ApplyDamage()</code>。</p>
+        <div class="comparison-table" role="table" aria-label="射线武器与抛射物回溯比较">
+          <div class="comparison-row head" role="row"><span>阶段</span><span>HitScan</span><span>Projectile</span></div>
+          <div class="comparison-row" role="row"><b>客户端请求</b><span>目标、TraceStart、HitTarget、HitTime</span><span>目标、TraceStart、InitialVelocity、HitTime</span></div>
+          <div class="comparison-row" role="row"><b>服务器重放</b><span><code>LineTraceSingleByChannel</code> 重放瞬时射线</span><span><code>PredictProjectilePath</code> 重建带半径和模拟频率的历史弹道</span></div>
+          <div class="comparison-row" role="row"><b>网络参数</b><span><code>FVector_NetQuantize</code> 压缩起点与目标</span><span><code>FVector_NetQuantize100</code> 压缩初速度</span></div>
+          <div class="comparison-row" role="row"><b>权威结果</b><span>头部或身体确认后 ApplyDamage</span><span>历史弹道与目标 HitBox 相交后 ApplyDamage</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

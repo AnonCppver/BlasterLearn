@@ -30,7 +30,7 @@ void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
 				{
 					GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, FString(TEXT("try travelling seamlessly")));
 				}
-				bUseSeamlessTravel = true;
+				//bUseSeamlessTravel = true;
 
 				FString MatchType = Subsystem->DesiredMatchType;
 				if(MatchType.IsEmpty())

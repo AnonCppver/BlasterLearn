@@ -614,10 +614,39 @@ void ABlasterPlayerController::PrimaryInteract()
 	InventoryComponent->TryAddItem(InvItemComponent);
 }
 
+// temp
 void ABlasterPlayerController::ToggleInventory()
 {
-	if (!InventoryComponent.IsValid())return;
+	if (!InventoryComponent.IsValid())
+	{
+		return;
+	}
+
+	bIsInventoryOpen = !bIsInventoryOpen;
+
+	CharacterOverlay->SetVisibility(
+		bIsInventoryOpen
+		? ESlateVisibility::Collapsed
+		: ESlateVisibility::Visible
+	);
+
 	InventoryComponent->ToggleMenu();
+
+	if (bIsInventoryOpen)
+	{
+		bShowMouseCursor = true;
+
+		FInputModeUIOnly InputMode;
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		SetInputMode(InputMode);
+	}
+	else
+	{
+		bShowMouseCursor = false;
+
+		FInputModeGameOnly InputMode;
+		SetInputMode(InputMode);
+	}
 }
 
 void ABlasterPlayerController::TraceItem()

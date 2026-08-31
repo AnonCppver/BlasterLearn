@@ -1,0 +1,23 @@
+<section class="section feature-section page-shell" id="unit-16" data-track-section>
+  <div class="feature-grid">
+    <div class="feature-media gif-media" data-reveal>
+      <span class="media-label">Grid Interaction / Server RPC</span>
+      <img src="assets/media/inventory-interactions.gif" alt="背包物品拖拽、交换、右键菜单和丢弃交互">
+    </div>
+    <div class="feature-copy" data-reveal>
+      <div class="feature-number" aria-hidden="true">16</div>
+      <span class="micro-label">HoverItem / Grid / Context Menu</span>
+      <h2>背包物品交互</h2>
+      <p class="feature-summary">UInvSlottedItem 将点击映射到逻辑物品的 <code>FirstGridIndex</code>，PickUp 后创建跟随鼠标的 HoverItem。Grid 根据鼠标象限和物品尺寸计算完整目标矩形，决定空白放置、堆叠、<code>SwapWithHoverItem</code> 或拒绝。</p>
+      <div class="tag-row"><span class="tag">FirstGridIndex</span><span class="tag">HoverItem</span><span class="tag">Region Query</span><span class="tag">Context Menu</span><span class="tag">Server RPC</span></div>
+      <div class="compact-flow" aria-label="背包交互链路"><span>点击 / FirstGridIndex</span><b>→</b><span>HoverItem 区域</span><b>→</b><span>放置 / 合并 / 交换</span><b>→</b><span>Drop / Consume RPC</span></div>
+      <ul class="key-list">
+        <li><b>01</b><span>多格物品所有 Slot 都保存相同 InventoryItem 和 <code>FirstGridIndex</code>，任意格点击都能还原左上角逻辑入口。</span></li>
+        <li><b>02</b><span>CalculateHoveredCoordinates、TileQuadrant 和 StartingCoordinate 共同确定 HoverItem 将覆盖的完整矩形，偶数尺寸拖拽仍保持直觉。</span></li>
+        <li><b>03</b><span>目标为空直接放下；同一逻辑堆叠执行全部或部分合并；覆盖一个不同物品时 <code>SwapWithHoverItem</code> 支持连续交换。</span></li>
+        <li><b>04</b><span>右键菜单按 Fragment 能力显示 Split、Drop 和 Consume；纯布局操作只改本地 Grid，数量变化才请求服务器。</span></li>
+        <li><b>05</b><span><code>Server_DropItem</code> 或 Server_ConsumeItem 扣除权威数量并标脏 FastArray；丢弃再用 Manifest 重建场景 Actor。</span></li>
+      </ul>
+    </div>
+  </div>
+</section>

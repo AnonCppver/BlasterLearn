@@ -1,0 +1,90 @@
+<section class="section feature-section feature-section--priority page-shell" id="unit-10" data-track-section>
+  <div class="feature-grid">
+    <div class="feature-media" data-reveal>
+      <span class="media-label">Local Prediction / Fire Loop</span>
+      <div class="diagram-stage"><div class="attachment-diagram" role="img" aria-label="武器开火与本地预测链路">
+        <div class="diagram-node"><strong>Crosshair HitTarget</strong><small>屏幕中心反投影到世界射击点</small></div><div class="diagram-arrow"></div>
+        <div class="diagram-node red"><strong>LocalFire</strong><small>角色 Montage、武器动画、Ammo 与准心反馈</small></div><div class="diagram-arrow"></div>
+        <div class="diagram-node"><strong>ServerFire</strong><small>校验 FireDelay 与战斗状态</small></div><div class="diagram-arrow"></div>
+        <div class="diagram-node"><strong>MulticastFire</strong><small>远端播放，预测客户端主动跳过</small></div>
+      </div></div>
+    </div>
+    <div class="feature-copy" data-reveal>
+      <div class="feature-number" aria-hidden="true">10</div>
+      <span class="micro-label">HitTarget / ServerFire / MulticastFire</span>
+      <h2>射击链路与输入手感</h2>
+      <p class="feature-summary">本地客户端先从屏幕中心计算 <code>HitTarget</code>，再由枪口指向该点得到实际射击角度。按键后立即执行预测表现，同时发送 <code>ServerFire</code>；服务器校验并 MulticastFire 给其他客户端，最初射手跳过重复动画。</p>
+      <div class="tag-row"><span class="tag">Local Prediction</span><span class="tag">FireDelay</span><span class="tag">Automatic Fire</span><span class="tag">Multicast Dedup</span><span class="tag">Input Intent</span></div>
+      <div class="compact-flow" aria-label="连续开火链路"><span>FireButtonPressed</span><b>→</b><span>LocalFire + ServerFire</span><b>→</b><span>FireDelay Timer</span><b>→</b><span>自动续射 / Reload</span></div>
+      <ul class="key-list">
+        <li><b>01</b><span>摄像机负责选点，MuzzleFlash Socket 到目标的向量负责枪口旋转；散布只改变最终目标，不改变输入采样方式。</span></li>
+        <li><b>02</b><span>本地预测立即播放 Character Montage、Weapon Animation、弹壳和准心冲量，消除等待 Server RPC 的输入延迟。</span></li>
+        <li><b>03</b><span><code>ServerFire</code> 校验射速窗口后调用 <code>MulticastFire</code>，本地控制客户端识别已预测事件并主动跳过。</span></li>
+        <li><b>04</b><span><code>bCanFire</code> 与 <code>FireDelay</code> Timer 同时限制本地射速和自动武器循环，避免按键频率直接决定射速。</span></li>
+        <li><b>05</b><span>持续保存按住开火的输入意图：换弹结束立即尝试射击，弹匣耗尽则自动请求换弹，使状态切换保持连续。</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="priority-deep-dive" data-reveal>
+    <header class="deep-dive-head">
+      <span class="micro-label">Priority Unit / 10</span>
+      <div>
+        <h3>从输入采样到可预测的网络射击循环</h3>
+        <p>系统把目标点计算、实际枪口方向、本地表现、服务器授权和射速循环拆成独立阶段，使输入反馈不必等待网络往返，同时保留服务器统一分发射击事件的能力。</p>
+      </div>
+    </header>
+
+    <div class="deep-dive-block">
+      <span class="deep-dive-index">01</span>
+      <div class="deep-dive-content">
+        <h4>准心选点：只由本地玩家构造 HitTarget</h4>
+        <p>CombatComponent 只为 <code>IsLocallyControlled()</code> 的角色执行准心检测。系统取得视口中心，通过 <code>DeprojectScreenToWorld</code> 得到世界起点与方向；远端角色不在每台机器上重复计算同一条准心射线。</p>
+        <div class="algorithm-grid">
+          <div class="algorithm-card"><b>避开自身模型</b><span>第三人称摄像机位于角色身后，射线起点沿准心方向前移 <code>DistanceToCharacter + 100.f</code>，减少首先命中自己角色的概率。</span></div>
+          <div class="algorithm-card"><b>始终有效的目标</b><span>存在阻挡时使用 ImpactPoint；没有阻挡时将射程终点写入 ImpactPoint，因此天空和远处空白区域同样能得到稳定 HitTarget。</span></div>
+        </div>
+        <div class="formula-strip"><code>Screen Center</code><span>→</span><code>DeprojectScreenToWorld</code><span>→</span><code>Start + Direction × TRACE_LENGTH</code></div>
+      </div>
+    </div>
+
+    <div class="deep-dive-block">
+      <span class="deep-dive-index">02</span>
+      <div class="deep-dive-content">
+        <h4>枪口方向：摄像机决定目标，MuzzleFlash 决定发射角</h4>
+        <p>准心射线先回答玩家希望命中的世界位置，武器再从 MuzzleFlash Socket 指向 HitTarget，通过 <code>(HitTarget - MuzzleLocation).Rotation()</code> 得到实际射击角度。这样既保留第三人称准心体验，也确保弹体从枪口而不是摄像机生成。</p>
+        <div class="algorithm-grid">
+          <div class="algorithm-card"><b>视差处理</b><span>摄像机与枪口不共点；先求世界目标、再由枪口重新定向，避免直接复用摄像机方向造成近距离偏移。</span></div>
+          <div class="algorithm-card"><b>散布复用</b><span>bUseScatter 以原始目标方向建立散布球，在球内采样随机点，再从枪口指向该点；输入采样方式不因武器类型改变。</span></div>
+          <div class="algorithm-card"><b>类型分派</b><span>Projectile、HitScan 与 Shotgun 共享状态、射速和网络入口，只在最终传入单个 HitTarget 或一组散布目标时分化。</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="deep-dive-block">
+      <span class="deep-dive-index">03</span>
+      <div class="deep-dive-content">
+        <h4>本地预测：即时表现与服务器多播互不重复</h4>
+        <p>通过 CanFire 后，开火客户端立即调用 <code>LocalFire</code>，同步播放角色 Montage、武器动画、弹壳、准心扩散脉冲并预测扣除弹药；同一输入同时调用 <code>ServerFire</code>，由服务器校验射速参数和战斗状态后执行 <code>MulticastFire</code>。</p>
+        <div class="formula-strip"><code>Input</code><span>→</span><code>LocalFire + ServerFire</code><span>→</span><code>MulticastFire</code><span>→</span><code>Remote LocalFire</code></div>
+        <div class="algorithm-grid">
+          <div class="algorithm-card"><b>多播去重</b><span>最初开火的普通客户端已执行预测；收到 Multicast 时通过 IsLocallyControlled 且非 Authority 的条件提前返回，避免动画、弹壳和扣弹执行两次。</span></div>
+          <div class="algorithm-card"><b>弹药校正</b><span>预测值用于立即刷新 HUD；服务器随后复制权威 Ammo，客户端通过 <code>OnRep_Ammo</code> 使用绝对值完成最终校正。</span></div>
+          <div class="algorithm-card"><b>观察者一致性</b><span>服务器与其他客户端仍执行多播表现，因此所有观察者都能看到同一次射击，而输入端不承担网络往返造成的操作延迟。</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="deep-dive-block">
+      <span class="deep-dive-index">04</span>
+      <div class="deep-dive-content">
+        <h4>连续开火：射速门控与跨状态输入意图</h4>
+        <p>每次成功射击立即令 <code>bCanFire = false</code>，并以 Weapon::FireDelay 启动计时器。<code>FireTimerFinished</code> 恢复门控后，只有按键仍被保持、武器允许 Automatic 且 CombatState 可开火时才进入下一轮，射速因此不依赖帧率或输入事件频率。</p>
+        <div class="algorithm-grid">
+          <div class="algorithm-card"><b>持续输入</b><span>bFireButtonPressed 保存“继续射击”的意图，而不是只记录一次按键事件；松开按键后，下一次 Timer 结束不会续射。</span></div>
+          <div class="algorithm-card"><b>换弹后衔接</b><span>FinishReloading 与 OnRep_CombatState 都会在回到 Unoccupied 后重试 Fire；若一条路径先成功，bCanFire 会阻止另一条重复触发。</span></div>
+          <div class="algorithm-card"><b>空弹匣换弹</b><span>最后一发完成自身 FireDelay 后再检查空弹匣并请求 Reload，保证该发的动画和射击节奏完整结束。</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

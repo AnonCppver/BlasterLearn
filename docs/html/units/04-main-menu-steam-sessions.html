@@ -1,0 +1,23 @@
+<section class="section feature-section page-shell" id="unit-04" data-track-section>
+  <div class="feature-grid">
+    <div class="feature-media" data-reveal>
+      <span class="media-label">在线服务 / Steam Session</span>
+      <img src="assets/media/menu-main.png" alt="主菜单的模式选择、创建房间与加入游戏界面">
+    </div>
+    <div class="feature-copy" data-reveal>
+      <div class="feature-number" aria-hidden="true">04</div>
+      <span class="micro-label">UMG / OnlineSubsystemSteam</span>
+      <h2>主菜单与 Steam Session</h2>
+      <p class="feature-summary">UMG 蓝图负责设置和菜单表现，C++ <code>UMenu</code> 将 Host、Join 与模式选择转交给 <code>UMultiplayerSessionsSubsystem</code>。Subsystem 跨地图维护 Online Session 生命周期，通过异步委托连接 Steam Lobby、监听大厅和比赛地图。</p>
+      <div class="tag-row"><span class="tag">GameInstanceSubsystem</span><span class="tag">IOnlineSession</span><span class="tag">MatchType</span><span class="tag">Steam Lobby</span><span class="tag">Travel</span></div>
+      <div class="compact-flow" aria-label="Steam Session 链路"><span>UMenu</span><b>→</b><span>UMultiplayerSessionsSubsystem</span><b>→</b><span>IOnlineSession</span><b>→</b><span>Lobby / ClientTravel</span></div>
+      <ul class="key-list">
+        <li><b>01</b><span>蓝图只处理窗口模式、分辨率、画质和 VSync；在线流程集中在 C++，避免界面逻辑持有 Steam API 细节。</span></li>
+        <li><b>02</b><span><code>UMultiplayerSessionsSubsystem</code> 基于 GameInstanceSubsystem，跨 Level Travel 保留 Session 状态和委托绑定。</span></li>
+        <li><b>03</b><span>创建、搜索、加入和销毁通过两层 Delegate 回传结果；已存在 Session 时先销毁，再继续挂起的创建请求。</span></li>
+        <li><b>04</b><span>自定义 <code>MatchType</code> 写入 Session Settings，Join 时在搜索结果中筛选相同模式，显示名称与网络键分离。</span></li>
+        <li><b>05</b><span>Host 使用 Listen Server 与 ServerTravel，Join 解析 ConnectString 后执行 <code>ClientTravel</code>；大厅满足人数后 Seamless Travel 到模式地图。</span></li>
+      </ul>
+    </div>
+  </div>
+</section>

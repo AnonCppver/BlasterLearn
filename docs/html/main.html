@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Blaster：基于 Unreal Engine 5.4、C++、Replication 与 Server-Side Rewind 的第三人称网络射击项目。">
+  <title>Blaster — Multiplayer Shooting Project</title>
+  <link rel="stylesheet" href="assets/css/site.css">
+  <script src="assets/js/site.js" defer></script>
+</head>
+<body class="home">
+  <a class="skip-link" href="#main">跳到主要内容</a>
+  <div class="reading-progress" data-reading-progress aria-hidden="true"></div>
+
+  <header class="site-header">
+    <div class="nav-shell">
+      <a class="brand" href="#top" aria-label="返回页面顶部">
+        <span class="brand-mark" aria-hidden="true"></span>
+        BLASTER
+      </a>
+      <nav class="main-nav" data-main-nav aria-label="系统导航">
+        <a href="#overview">架构</a>
+        <a href="#unit-01" data-track-link>01</a>
+        <a href="#unit-02" data-track-link>02</a>
+        <a href="#unit-03" data-track-link>03</a>
+        <a href="#unit-04" data-track-link>04</a>
+        <a href="#unit-05" data-track-link>05</a>
+        <a href="#unit-06" data-track-link>06</a>
+        <a href="#unit-07" data-track-link>07</a>
+        <a href="#unit-08" data-track-link>08</a>
+        <a href="#unit-09" data-track-link>09</a>
+        <a href="#unit-10" data-track-link>10</a>
+        <a href="#unit-11" data-track-link>11</a>
+        <a href="#unit-12" data-track-link>12</a>
+        <a href="#unit-13" data-track-link>13</a>
+        <a href="#unit-14" data-track-link>14</a>
+        <a href="#unit-15" data-track-link>15</a>
+        <a href="#unit-16" data-track-link>16</a>
+      </nav>
+      <div class="nav-meta">UE 5.4 // C++ // Replication</div>
+      <button class="menu-toggle" type="button" data-menu-toggle aria-expanded="false" aria-label="展开导航">导航</button>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- Source: home.html -->
+    <section class="hero" id="top">
+      <div class="hero-copy">
+        <span class="micro-label">UE 5.4 / C++ / Multiplayer</span>
+        <h1 class="display-title">MULTIPLAYER<span class="red">SHOOTING</span>PROJECT</h1>
+        <p class="hero-intro">基于 Unreal Engine 5.4 与 C++ 实现第三人称网络射击：服务器通过 Server RPC 维护权威战斗状态，客户端负责本地瞄准、预测动画与 HUD 表现，Replication 同步关键数据，Server-Side Rewind 处理高延迟下的命中确认。</p>
+        <div class="hero-actions" aria-label="项目链接">
+          <a class="button primary" href="#" data-placeholder-link aria-disabled="true" title="GitHub 地址待补充">GitHub <span aria-hidden="true">↗</span></a>
+          <a class="button" href="#" data-placeholder-link aria-disabled="true" title="下载地址待补充">下载项目 <span aria-hidden="true">↓</span></a>
+        </div>
+      </div>
+      <div class="hero-visual logo-visual" aria-label="Unreal Engine 5.4 项目标识">
+        <img src="assets/media/ue5-mark.svg" alt="Unreal Engine 5.4 多人射击项目标识">
+      </div>
+    </section>
+    
+    <section class="section page-shell" id="overview">
+      <div class="section-head" data-reveal>
+        <div class="section-index">00</div>
+        <h2 class="display-title section-title">核心系统</h2>
+        <p class="section-copy">CombatComponent 与 AnimInstance 处理战斗和动画，GameMode、PlayerController 与 Replication 维护服务器权威状态，GameplayTag、Manifest、FastArray 和 Grid 构成数据驱动背包。</p>
+      </div>
+    
+      <div class="unit-selector" data-reveal>
+        <a class="unit-card" href="#unit-01">
+          <span class="num" aria-hidden="true">01</span>
+          <span class="type">CombatComponent / HUD</span>
+          <h3>准心敌友识别</h3>
+          <p>ECC_Visibility、接口队伍查询、PlayerState 复制与 CrosshairSpread。</p>
+        </a>
+        <a class="unit-card" href="#unit-02">
+          <span class="num" aria-hidden="true">02</span>
+          <span class="type">Character / AnimInstance</span>
+          <h3>瞄准偏移与原地转身</h3>
+          <p>AO_Yaw、Rotate Root Bone、双阈值状态与 FInterpTo。</p>
+        </a>
+        <a class="unit-card" href="#unit-03">
+          <span class="num" aria-hidden="true">03</span>
+          <span class="type">WeaponState / FABRIK</span>
+          <h3>武器附加与左手校正</h3>
+          <p>OwnerOnly、服务器装备、Socket 骨骼空间与 FABRIK。</p>
+        </a>
+        <a class="unit-card" href="#unit-04">
+          <span class="num" aria-hidden="true">04</span><span class="type">UMG / OnlineSubsystemSteam</span>
+          <h3>主菜单与 Steam Session</h3><p>GameInstanceSubsystem、异步 Delegate、MatchType 与 Travel。</p>
+        </a>
+        <a class="unit-card" href="#unit-05">
+          <span class="num" aria-hidden="true">05</span><span class="type">AWeapon / Data Driven</span>
+          <h3>武器分类与数据</h3><p>机制继承、武器身份、弹体关联与弹药职责。</p>
+        </a>
+        <a class="unit-card unit-card--priority" href="#unit-06">
+          <span class="num" aria-hidden="true">06</span><span class="type">MatchState / Time Sync</span>
+          <span class="priority-mark" aria-hidden="true">★</span>
+          <h3>比赛状态与时间同步</h3><p>服务器时间轴、样本过滤、单程延迟与本地倒计时。</p>
+        </a>
+        <a class="unit-card" href="#unit-07">
+          <span class="num" aria-hidden="true">07</span><span class="type">Replication / Buff</span>
+          <h3>生命护盾与恢复 Buff</h3><p>复合状态、OnRep、服务器恢复与按需 Tick。</p>
+        </a>
+        <a class="unit-card" href="#unit-08">
+          <span class="num" aria-hidden="true">08</span><span class="type">Game Rules / Respawn</span>
+          <h3>淘汰计分与复活</h3><p>GameMode 结算、GameState 得分、Multicast 与新 Pawn。</p>
+        </a>
+        <a class="unit-card" href="#unit-09">
+          <span class="num" aria-hidden="true">09</span><span class="type">Strategy / CombatState</span>
+          <h3>换弹策略与状态机</h3><p>Server RPC、AnimNotify、装填策略与弹药 HUD 链路。</p>
+        </a>
+        <a class="unit-card unit-card--priority" href="#unit-10">
+          <span class="num" aria-hidden="true">10</span><span class="type">Prediction / Fire Loop</span>
+          <span class="priority-mark" aria-hidden="true">★</span>
+          <h3>射击链路与输入手感</h3><p>枪口方向、本地预测、多播去重与连续开火。</p>
+        </a>
+        <a class="unit-card unit-card--priority" href="#unit-11">
+          <span class="num" aria-hidden="true">11</span><span class="type">HitBox / SSR</span>
+          <span class="priority-mark" aria-hidden="true">★</span>
+          <h3>命中确认与服务器回溯</h3><p>历史 HitBox、环形缓冲、时间校准与权威伤害确认。</p>
+        </a>
+        <a class="unit-card" href="#unit-12">
+          <span class="num" aria-hidden="true">12</span><span class="type">Pickup / Authority</span>
+          <h3>拾取物刷新与消费</h3><p>服务器 Overlap、生命周期、一次性保护与循环生成。</p>
+        </a>
+        <a class="unit-card" href="#unit-13">
+          <span class="num" aria-hidden="true">13</span><span class="type">Manifest / Fragment</span>
+          <h3>Manifest 与 Fragment</h3><p>GameplayTag、TInstancedStruct、序列化与数据组合。</p>
+        </a>
+        <a class="unit-card" href="#unit-14">
+          <span class="num" aria-hidden="true">14</span><span class="type">FastArray / Delta</span>
+          <h3>FastArray 增量复制</h3><p>稳定 ID、Dirty 标记、增量回调与子对象复制。</p>
+        </a>
+        <a class="unit-card unit-card--priority" href="#unit-15">
+          <span class="num" aria-hidden="true">15</span><span class="type">2D Grid / Placement</span>
+          <span class="priority-mark" aria-hidden="true">★</span>
+          <h3>空间查询与物品落位</h3><p>二维边界、候选占用、堆叠填充与 Grid Widget。</p>
+        </a>
+        <a class="unit-card" href="#unit-16">
+          <span class="num" aria-hidden="true">16</span><span class="type">HoverItem / Interaction</span>
+          <h3>背包物品交互</h3><p>区域检测、放置合并、连续交换与服务器丢弃。</p>
+        </a>
+      </div>
+    </section>
+
+    <!-- Source: units/01-crosshair-team-identification.html -->
+    <section class="section feature-section page-shell" id="unit-01" data-track-section>
+      <div class="feature-grid">
+        <div class="feature-media gif-media" data-reveal>
+          <span class="media-label">本地 / Line Trace</span>
+          <img src="assets/media/crosshair.gif" alt="准心命中敌方角色身体时变为红色">
+        </div>
+        <div class="feature-copy" data-reveal>
+          <div class="feature-number" aria-hidden="true">01</div>
+          <span class="micro-label">CombatComponent / HUD</span>
+          <h2>准心敌友识别</h2>
+          <p class="feature-summary">本地客户端持续把屏幕中心转换为世界射线：命中敌方角色身体时准心变红，友方、场景物体或未命中时保持白色。同一份射线结果生成武器使用的 <code>HitTarget</code>，确保 HUD 反馈与射击方向来自相同的瞄准数据。</p>
+          <div class="tag-row">
+            <span class="tag">Line Trace</span><span class="tag">ECC_Visibility</span><span class="tag">Interface</span><span class="tag">PlayerState</span><span class="tag">HUD</span>
+          </div>
+          <div class="compact-flow" aria-label="准心敌友识别流程">
+            <span>屏幕中心</span><b>→</b><span>世界射线</span><b>→</b><span>接口队伍</span><b>→</b><span>HUD 颜色</span>
+          </div>
+          <ul class="key-list">
+            <li><b>01</b><span>检测只在本地控制角色上运行，不为准心颜色与扩散反馈发送额外 RPC。</span></li>
+            <li><b>02</b><span>射线使用 <code>ECC_Visibility</code>；Capsule Ignore、Skeletal Mesh Block，因此只有实际命中角色身体才会变色。</span></li>
+            <li><b>03</b><span><code>ECC_SkeletalMesh</code> 与准心检测无关，检测精度来自组件对 Visibility 的差异化 Collision Response。</span></li>
+            <li><b>04</b><span>通过 <code>IInteractWithCrosshairsInterface</code> 获取目标队伍，CombatComponent 不依赖具体角色类型；队伍数据读取自已复制的 <code>PlayerState</code>。</span></li>
+            <li><b>05</b><span>水平速度、腾空、ADS 和开火共同合成 <code>CrosshairSpread</code>，颜色与扩散参数统一写入 FHUDPackage。</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Source: units/02-aim-offset-turn-in-place.html -->
+    <section class="section feature-section page-shell" id="unit-02" data-track-section>
+      <div class="feature-grid">
+        <div class="feature-media gif-media" data-reveal>
+          <span class="media-label">动画 / Aim Offset</span>
+          <img src="assets/media/aimspace.gif" alt="角色通过 Aim Offset 与原地转身对齐身体朝向">
+        </div>
+        <div class="feature-copy" data-reveal>
+          <div class="feature-number" aria-hidden="true">02</div>
+          <span class="micro-label">Character / AnimInstance</span>
+          <h2>瞄准偏移与原地转身</h2>
+          <p class="feature-summary">角色静止腰射时，上半身先通过 Aim Offset 跟随准心，脚部保持原方向；水平偏移超过阈值后播放左转或右转动画，并逐渐释放 Root Bone 补偿，使 Mesh 平滑追上 Actor 的真实朝向。</p>
+          <div class="tag-row">
+            <span class="tag">AO_Yaw</span><span class="tag">NormalizedDeltaRotator</span><span class="tag">Rotate Root Bone</span><span class="tag">FInterpTo</span>
+          </div>
+          <div class="compact-flow" aria-label="原地转身流程">
+            <span>记录基准</span><b>→</b><span>计算角度差</span><b>→</b><span>超过 ±90°</span><b>→</b><span>插值回正</span>
+          </div>
+          <ul class="key-list">
+            <li><b>01</b><span><code>AO_Yaw</code> 来自当前 Aim Rotation 与静止起始方向之间的水平差值，只在静止、未腾空且未 ADS 时累计。</span></li>
+            <li><b>02</b><span><code>NormalizedDeltaRotator</code> 将 Yaw 规范到 −180°～180°，跨越角度边界时仍按最短方向计算。</span></li>
+            <li><b>03</b><span><code>Rotate Root Bone</code> 只在 Animation Pose 中抵消 Actor 旋转，不修改 Capsule、控制器、服务器朝向或武器射线。</span></li>
+            <li><b>04</b><span>偏移超过 ±90°进入转身并通过 <code>FInterpTo</code> 回收到 0；开始修正时不修改 StartingAimRotation，低于 15°后才重建基准。</span></li>
+            <li><b>05</b><span>ADS 停止累计水平偏移以稳定枪械与镜头，AO_Pitch 继续更新，并把远端的 270°～360°映射回负角度。</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Source: units/03-weapon-attachment-fabrik.html -->
+    <section class="section feature-section page-shell" id="unit-03" data-track-section>
+      <div class="feature-grid">
+        <div class="feature-media" data-reveal>
+          <span class="media-label">运行时 / Bone Space</span>
+          <div class="diagram-stage">
+            <div class="attachment-diagram" role="img" aria-label="右手附加武器并由武器定位左手的 FABRIK 流程">
+              <div class="diagram-node"><strong>Character Mesh</strong><small>人物右手骨骼作为枪械主锚点</small></div>
+              <div class="diagram-arrow" aria-hidden="true"></div>
+              <div class="diagram-node red"><strong>RightHandSocket → Weapon</strong><small>服务器状态确定武器附加关系</small></div>
+              <div class="diagram-arrow" aria-hidden="true"></div>
+              <div class="diagram-node"><strong>Weapon.LeftHandSocket</strong><small>World Space 转换到 RightHand Bone Space</small></div>
+              <div class="diagram-arrow" aria-hidden="true"></div>
+              <div class="diagram-node"><strong>FABRIK</strong><small>运行时求解左臂并贴合握把</small></div>
+            </div>
+          </div>
+        </div>
+        <div class="feature-copy" data-reveal>
+          <div class="feature-number" aria-hidden="true">03</div>
+          <span class="micro-label">WeaponState / FABRIK</span>
+          <h2>武器附加与左手校正</h2>
+          <p class="feature-summary">地面武器通过 Overlap 建立可拾取目标，客户端操作只发送装备请求，由服务器决定武器归属与主副槽位。主武器固定在人物右手，Weapon Asset 再反向定义左手握点，使相同 Character Skeleton 适配不同枪械。</p>
+          <div class="tag-row">
+            <span class="tag">COND_OwnerOnly</span><span class="tag">Server RPC</span><span class="tag">RightHandSocket</span><span class="tag">LeftHandSocket</span><span class="tag">FABRIK</span>
+          </div>
+          <div class="compact-flow" aria-label="武器装备与左手校正流程">
+            <span>Overlap</span><b>→</b><span>服务器装备</span><b>→</b><span>Socket 附加</span><b>→</b><span>FABRIK</span>
+          </div>
+          <ul class="key-list">
+            <li><b>01</b><span>AreaSphere 检测 Pawn，<code>OverlappingWeapon</code> 使用 <code>COND_OwnerOnly</code>，拾取提示只复制给 Character Owner。</span></li>
+            <li><b>02</b><span>客户端通过 Server RPC 表达装备意图，服务器依据权威 Overlap 结果与 CombatState 决定归属和槽位。</span></li>
+            <li><b>03</b><span>WeaponState 统一切换拾取碰撞、Physics Simulation 和 Custom Depth；主武器附加到 <code>RightHandSocket</code>，副武器附加到 BackpackSocket。</span></li>
+            <li><b>04</b><span>每把武器通过 <code>LeftHandSocket</code> 配置握点，Transform 转到 RightHand Bone Space 后由 <code>FABRIK</code> 求解左臂。</span></li>
+            <li><b>05</b><span>Reloading 时关闭 FABRIK 让 Montage 接管左手；多武器 Overlap 使用候选集合并按准心方向与距离稳定选择 FocusedWeapon。</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Source: units/04-main-menu-steam-sessions.html -->
+    <section class="section feature-section page-shell" id="unit-04" data-track-section>
+      <div class="feature-grid">
+        <div class="feature-media" data-reveal>
+          <span class="media-label">在线服务 / Steam Session</span>
+          <img src="assets/media/menu-main.png" alt="主菜单的模式选择、创建房间与加入游戏界面">
+        </div>
+        <div class="feature-copy" data-reveal>
+          <div class="feature-number" aria-hidden="true">04</div>
+          <span class="micro-label">UMG / OnlineSubsystemSteam</span>
+          <h2>主菜单与 Steam Session</h2>
+          <p class="feature-summary">UMG 蓝图负责设置和菜单表现，C++ <code>UMenu</code> 将 Host、Join 与模式选择转交给 <code>UMultiplayerSessionsSubsystem</code>。Subsystem 跨地图维护 Online Session 生命周期，通过异步委托连接 Steam Lobby、监听大厅和比赛地图。</p>
+          <div class="tag-row"><span class="tag">GameInstanceSubsystem</span><span class="tag">IOnlineSession</span><span class="tag">MatchType</span><span class="tag">Steam Lobby</span><span class="tag">Travel</span></div>
+          <div class="compact-flow" aria-label="Steam Session 链路"><span>UMenu</span><b>→</b><span>UMultiplayerSessionsSubsystem</span><b>→</b><span>IOnlineSession</span><b>→</b><span>Lobby / ClientTravel</span></div>
+          <ul class="key-list">
+            <li><b>01</b><span>蓝图只处理窗口模式、分辨率、画质和 VSync；在线流程集中在 C++，避免界面逻辑持有 Steam API 细节。</span></li>
+            <li><b>02</b><span><code>UMultiplayerSessionsSubsystem</code> 基于 GameInstanceSubsystem，跨 Level Travel 保留 Session 状态和委托绑定。</span></li>
+            <li><b>03</b><span>创建、搜索、加入和销毁通过两层 Delegate 回传结果；已存在 Session 时先销毁，再继续挂起的创建请求。</span></li>
+            <li><b>04</b><span>自定义 <code>MatchType</code> 写入 Session Settings，Join 时在搜索结果中筛选相同模式，显示名称与网络键分离。</span></li>
+            <li><b>05</b><span>Host 使用 Listen Server 与 ServerTravel，Join 解析 ConnectString 后执行 <code>ClientTravel</code>；大厅满足人数后 Seamless Travel 到模式地图。</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Source: units/05-weapon-classification-and-data.html -->
+    <section class="section feature-section page-shell" id="unit-05" data-track-section>
+      <div class="feature-grid">
+        <div class="feature-media contain-media" data-reveal>
+          <span class="media-label">类型系统 / Data Driven</span>
+          <img src="assets/media/weapon-class-tree.png" alt="AWeapon、射线武器、抛射物武器与弹体类关系图">
+        </div>
+        <div class="feature-copy" data-reveal>
+          <div class="feature-number" aria-hidden="true">05</div>
+          <span class="micro-label">AWeapon / EWeaponType / EFireType</span>
+          <h2>武器分类与数据</h2>
+          <p class="feature-summary">少量 C++ 机制类通过资产配置覆盖六种武器：<code>AWeapon</code> 保存公共规格，<code>AHitScanWeapon</code> 与 <code>AProjectileWeapon</code> 区分命中机制，<code>AShotgun</code> 扩展多射线逻辑；武器身份、开火机制和生命周期状态分别建模。</p>
+          <div class="tag-row"><span class="tag">AWeapon</span><span class="tag">AHitScanWeapon</span><span class="tag">AProjectileWeapon</span><span class="tag">AProjectile</span><span class="tag">Ammo</span></div>
+          <div class="compact-flow" aria-label="武器数据关系"><span>AWeapon 规格</span><b>→</b><span>EWeaponType 身份</span><b>→</b><span>EFireType 机制</span><b>→</b><span>资产配置</span></div>
+          <ul class="key-list">
+            <li><b>01</b><span><code>AWeapon</code> 统一 Mesh、碰撞、弹药、射速、散布和表现资源，具体资产不必为每种枪新增 C++ 子类。</span></li>
+            <li><b>02</b><span><code>EWeaponType</code> 表达手枪、步枪等武器身份并索引携带弹药；<code>EFireType</code> 独立表达 HitScan、Projectile 或 Shotgun 机制。</span></li>
+            <li><b>03</b><span><code>AHitScanWeapon</code> 承担射线类公共行为，<code>AShotgun</code> 仅扩展一次生成多条散布射线的差异。</span></li>
+            <li><b>04</b><span><code>AProjectileWeapon</code> 通过 TSubclassOf 关联 <code>AProjectile</code>，弹体再派生为 AProjectileBullet 与 AProjectileRocket，二者不是武器继承链。</span></li>
+            <li><b>05</b><span>弹匣 Ammo 属于武器 Actor，携带弹药按 EWeaponType 保存在 CombatComponent；ACasing 只承担弹壳物理与销毁。</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Source: units/06-match-state-time-sync-and-latency.html -->
+    <section class="section feature-section page-shell" id="unit-06" data-track-section>
+      <div class="feature-grid">
+        <div class="feature-media" data-reveal>
+          <span class="media-label">网络时钟 / Match State</span>
+          <div class="diagram-stage"><div class="attachment-diagram" role="img" aria-label="比赛状态和服务器时间同步链路">
+            <div class="diagram-node"><strong>GameMode Timeline</strong><small>WaitingToStart → InProgress → Cooldown</small></div><div class="diagram-arrow"></div>
+            <div class="diagram-node red"><strong>PlayerController</strong><small>状态、LevelStartingTime 与阶段时长</small></div><div class="diagram-arrow"></div>
+            <div class="diagram-node"><strong>Filtered Time Samples</strong><small>RTT / SingleTripTime / ClientServerDelta</small></div><div class="diagram-arrow"></div>
+            <div class="diagram-node"><strong>Local HUD Countdown</strong><small>GetServerTime() − 阶段结束时刻</small></div>
+          </div></div>
+        </div>
+        <div class="feature-copy" data-reveal>
+          <div class="feature-number" aria-hidden="true">06</div>
+          <span class="micro-label">GameMode / PlayerController / Time Sync</span>
+          <h2>比赛状态与时间同步</h2>
+          <p class="feature-summary">服务器推进 <code>WaitingToStart</code>、InProgress 和 Cooldown，客户端只接收状态与时间基准，并通过多次请求/响应估算服务器时钟。HUD 在本地根据校准后的服务器时间计算倒计时，不需要服务器每秒复制剩余秒数。</p>
+          <div class="tag-row"><span class="tag">MatchState</span><span class="tag">ClientServerDelta</span><span class="tag">SingleTripTime</span><span class="tag">Sliding Window</span><span class="tag">HUD</span></div>
+          <div class="compact-flow" aria-label="时间同步流程"><span>客户端发送时刻</span><b>→</b><span>服务器接收时刻</span><b>→</b><span>过滤 RTT 样本</span><b>→</b><span>GetServerTime</span></div>
+          <ul class="key-list">
+            <li><b>01</b><span>GameMode 只存在于服务器，PlayerController 将 MatchState 和整条比赛时间轴送到对应客户端。</span></li>
+            <li><b>02</b><span>中途加入通过 ServerCheckMatchState 补齐当前阶段、LevelStartingTime、WarmupTime、MatchTime 与 CooldownTime。</span></li>
+            <li><b>03</b><span>每次采样由请求发送时刻和回复抵达时刻得到 RTT，再估算 <code>SingleTripTime</code> 与 <code>ClientServerDelta</code>。</span></li>
+            <li><b>04</b><span>滑动窗口拒绝异常 RTT，对保留样本平均，<code>GetServerTime()</code> 使用平均时钟偏差减少倒计时与回溯时间抖动。</span></li>
+            <li><b>05</b><span>自测单程延迟服务于时钟校准；PlayerState 压缩 Ping 服务于高延迟提示，两者数据源和用途分离。</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Source: units/07-health-shield-and-buff.html -->
+    <section class="section feature-section page-shell" id="unit-07" data-track-section>
+      <div class="feature-grid">
+        <div class="feature-media gif-media" data-reveal>
+          <span class="media-label">服务器权威 / Vital State</span>
+          <img src="assets/media/health-shield-buff.gif" alt="生命与护盾持续恢复 Buff 的游戏内表现">
+        </div>
+        <div class="feature-copy" data-reveal>
+          <div class="feature-number" aria-hidden="true">07</div>
+          <span class="micro-label">Replication / UBuffComponent</span>
+          <h2>生命护盾与恢复 Buff</h2>
+          <p class="feature-summary">服务器在一次结算中按“护盾优先、溢出扣生命”更新复合状态，再复制 <code>FReplicatedVitalState</code>。客户端的 <code>OnRep</code> 只刷新 HUD 和受击表现；持续恢复由服务器 UBuffComponent 校验参数并按需启停 Tick。</p>
+          <div class="tag-row"><span class="tag">FReplicatedVitalState</span><span class="tag">OnRep</span><span class="tag">UBuffComponent</span><span class="tag">Authority</span><span class="tag">Conditional Tick</span></div>
+          <div class="compact-flow" aria-label="生命护盾同步链路"><span>服务器结算</span><b>→</b><span>复合状态复制</span><b>→</b><span>OnRep 去重反馈</span><b>→</b><span>HUD</span></div>
+          <ul class="key-list">
+            <li><b>01</b><span>生命和护盾只由服务器修改，客户端即使篡改本地数值也不能影响权威比赛结果。</span></li>
+            <li><b>02</b><span><code>FReplicatedVitalState</code> 将 Health 与 Shield 作为同一次网络更新复制，避免两个 OnRep 跨帧产生中间状态。</span></li>
+            <li><b>03</b><span>旧值随 <code>OnRep</code> 进入客户端，HUD 刷新与受击 Montage 共用变化判断，避免监听服务器或重复复制造成反馈叠加。</span></li>
+            <li><b>04</b><span><code>UBuffComponent</code> 对恢复量、持续时间和速率做有限值与正数校验；生命和护盾达到上限后仍按既定规则消耗剩余恢复量。</span></li>
+            <li><b>05</b><span>只有存在有效 Buff 时调用 <code>SetComponentTickEnabled(true)</code>，全部恢复任务结束后停止 Tick，降低常驻组件开销。</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Source: units/08-elimination-scoring-respawn-default-weapon.html -->
+    <section class="section feature-section page-shell" id="unit-08" data-track-section>
+      <div class="feature-grid">
+        <div class="feature-media gif-media" data-reveal>
+          <span class="media-label">Game Rules / Respawn</span>
+          <img src="assets/media/elimination-respawn.gif" alt="角色淘汰后延迟复活并重新获得默认武器">
+        </div>
+        <div class="feature-copy" data-reveal>
+          <div class="feature-number" aria-hidden="true">08</div>
+          <span class="micro-label">GameMode / GameState / PlayerState</span>
+          <h2>淘汰计分与复活</h2>
+          <p class="feature-summary">生命归零后由服务器 <code>ABlasterGameMode</code> 统一结算攻击者得分、受害者失败次数和团队分数，再可靠多播死亡表现。延迟结束后 RequestRespawn 销毁旧 Pawn，并让原 Controller 在出生点控制新角色。</p>
+          <div class="tag-row"><span class="tag">ABlasterGameMode</span><span class="tag">PlayerState</span><span class="tag">GameState</span><span class="tag">Reliable Multicast</span><span class="tag">RequestRespawn</span></div>
+          <div class="compact-flow" aria-label="淘汰与复活流程"><span>GameMode 结算</span><b>→</b><span>PlayerState / GameState</span><b>→</b><span>MulticastElim</span><b>→</b><span>RequestRespawn</span></div>
+          <ul class="key-list">
+            <li><b>01</b><span>GameMode 负责规则；<code>PlayerState</code> 保存个人得分和失败次数；<code>GameState</code> 维护最高分玩家与团队总分。</span></li>
+            <li><b>02</b><span>攻击者得分变化触发 Owner HUD 与得分音效，全体 PlayerController 接收淘汰公告，规则数据和表现事件分离。</span></li>
+            <li><b>03</b><span>可靠 Multicast 统一关闭移动、输入和碰撞，处理武器生命周期并播放 Dissolve/Elim 表现。</span></li>
+            <li><b>04</b><span><code>RequestRespawn</code> 仅在服务器执行：销毁旧 Character，选择 PlayerStart，再用原 Controller 创建并 Possess 新 Pawn。</span></li>
+            <li><b>05</b><span>Controller 与 PlayerState 跨复活保留；默认武器由服务器为新角色生成、设为独立销毁生命周期并完成装备复制。</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Source: units/09-reloading-strategy-and-combat-state.html -->
+    <section class="section feature-section page-shell" id="unit-09" data-track-section>
+      <div class="feature-grid">
+        <div class="feature-media contain-media" data-reveal>
+          <span class="media-label">Strategy / Combat State</span>
+          <img src="assets/media/combat-state-reachability.png" alt="Unoccupied、Firing、Reloading 与 Switching 条件性可达关系">
+        </div>
+        <div class="feature-copy" data-reveal>
+          <div class="feature-number" aria-hidden="true">09</div>
+          <span class="micro-label">ServerReload / AnimNotify / Strategy</span>
+          <h2>换弹 Strategy 与状态机</h2>
+          <p class="feature-summary">客户端通过 <code>ServerReload</code> 请求进入 Reloading，服务器复制 <code>CombatState</code> 并播放对应 Montage。弹药不在按键时修改，而由 <code>AnimNotify</code> 在真实装填帧反向提交；装填 Strategy 决定一次性、逐发或持续充能规则。</p>
+          <div class="tag-row"><span class="tag">Reload Strategy</span><span class="tag">Animation Strategy</span><span class="tag">CombatState</span><span class="tag">AmountToReload</span><span class="tag">HUD Chain</span></div>
+          <div class="compact-flow" aria-label="换弹提交链路"><span>ServerReload</span><b>→</b><span>Reloading</span><b>→</b><span>AnimNotify</span><b>→</b><span>弹匣 / 备弹 / HUD</span></div>
+          <ul class="key-list">
+            <li><b>01</b><span>服务器验证武器、弹匣和备弹条件后复制 Reloading，<code>CombatState</code> 阻止换弹、射击和 Switching 非法并发。</span></li>
+            <li><b>02</b><span>装填 Strategy 管理一次性装填、逐发装填并预留持续充能；动画 Strategy 按 WeaponType 选择 Montage 和 Section。</span></li>
+            <li><b>03</b><span><code>AnimNotify</code> 从动画反向调用 FinishReloading 或单发 ShellReload，在动作到达装填点时才让服务器提交资源变化。</span></li>
+            <li><b>04</b><span><code>AmountToReload</code> 取弹匣空位与对应携带弹药的较小值；服务器扣备弹、调用 AddAmmo，再通过复制和客户端 RPC 更新两组 HUD。</span></li>
+            <li><b>05</b><span>霰弹枪每次通知只装一发，弹匣满或备弹为零时跳转结束段；Switching 同样由状态和动画通知控制挂点切换。</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Source: units/10-weapon-firing-and-input-feel.html -->
+    <section class="section feature-section feature-section--priority page-shell" id="unit-10" data-track-section>
+      <div class="feature-grid">
+        <div class="feature-media" data-reveal>
+          <span class="media-label">Local Prediction / Fire Loop</span>
+          <div class="diagram-stage"><div class="attachment-diagram" role="img" aria-label="武器开火与本地预测链路">
+            <div class="diagram-node"><strong>Crosshair HitTarget</strong><small>屏幕中心反投影到世界射击点</small></div><div class="diagram-arrow"></div>
+            <div class="diagram-node red"><strong>LocalFire</strong><small>角色 Montage、武器动画、Ammo 与准心反馈</small></div><div class="diagram-arrow"></div>
+            <div class="diagram-node"><strong>ServerFire</strong><small>校验 FireDelay 与战斗状态</small></div><div class="diagram-arrow"></div>
+            <div class="diagram-node"><strong>MulticastFire</strong><small>远端播放，预测客户端主动跳过</small></div>
+          </div></div>
+        </div>
+        <div class="feature-copy" data-reveal>
+          <div class="feature-number" aria-hidden="true">10</div>
+          <span class="micro-label">HitTarget / ServerFire / MulticastFire</span>
+          <h2>射击链路与输入手感</h2>
+          <p class="feature-summary">本地客户端先从屏幕中心计算 <code>HitTarget</code>，再由枪口指向该点得到实际射击角度。按键后立即执行预测表现，同时发送 <code>ServerFire</code>；服务器校验并 MulticastFire 给其他客户端，最初射手跳过重复动画。</p>
+          <div class="tag-row"><span class="tag">Local Prediction</span><span class="tag">FireDelay</span><span class="tag">Automatic Fire</span><span class="tag">Multicast Dedup</span><span class="tag">Input Intent</span></div>
+          <div class="compact-flow" aria-label="连续开火链路"><span>FireButtonPressed</span><b>→</b><span>LocalFire + ServerFire</span><b>→</b><span>FireDelay Timer</span><b>→</b><span>自动续射 / Reload</span></div>
+          <ul class="key-list">
+            <li><b>01</b><span>摄像机负责选点，MuzzleFlash Socket 到目标的向量负责枪口旋转；散布只改变最终目标，不改变输入采样方式。</span></li>
+            <li><b>02</b><span>本地预测立即播放 Character Montage、Weapon Animation、弹壳和准心冲量，消除等待 Server RPC 的输入延迟。</span></li>
+            <li><b>03</b><span><code>ServerFire</code> 校验射速窗口后调用 <code>MulticastFire</code>，本地控制客户端识别已预测事件并主动跳过。</span></li>
+            <li><b>04</b><span><code>bCanFire</code> 与 <code>FireDelay</code> Timer 同时限制本地射速和自动武器循环，避免按键频率直接决定射速。</span></li>
+            <li><b>05</b><span>持续保存按住开火的输入意图：换弹结束立即尝试射击，弹匣耗尽则自动请求换弹，使状态切换保持连续。</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="priority-deep-dive" data-reveal>
+        <header class="deep-dive-head">
+          <span class="micro-label">Priority Unit / 10</span>
+          <div>
+            <h3>从输入采样到可预测的网络射击循环</h3>
+            <p>系统把目标点计算、实际枪口方向、本地表现、服务器授权和射速循环拆成独立阶段，使输入反馈不必等待网络往返，同时保留服务器统一分发射击事件的能力。</p>
+          </div>
+        </header>
+    
+        <div class="deep-dive-block">
+          <span class="deep-dive-index">01</span>
+          <div class="deep-dive-content">
+            <h4>准心选点：只由本地玩家构造 HitTarget</h4>
+            <p>CombatComponent 只为 <code>IsLocallyControlled()</code> 的角色执行准心检测。系统取得视口中心，通过 <code>DeprojectScreenToWorld</code> 得到世界起点与方向；远端角色不在每台机器上重复计算同一条准心射线。</p>
+            <div class="algorithm-grid">
+              <div class="algorithm-card"><b>避开自身模型</b><span>第三人称摄像机位于角色身后，射线起点沿准心方向前移 <code>DistanceToCharacter + 100.f</code>，减少首先命中自己角色的概率。</span></div>
+              <div class="algorithm-card"><b>始终有效的目标</b><span>存在阻挡时使用 ImpactPoint；没有阻挡时将射程终点写入 ImpactPoint，因此天空和远处空白区域同样能得到稳定 HitTarget。</span></div>
+            </div>
+            <div class="formula-strip"><code>Screen Center</code><span>→</span><code>DeprojectScreenToWorld</code><span>→</span><code>Start + Direction × TRACE_LENGTH</code></div>
+          </div>
+        </div>
+    
+        <div class="deep-dive-block">
+          <span class="deep-dive-index">02</span>
+          <div class="deep-dive-content">
+            <h4>枪口方向：摄像机决定目标，MuzzleFlash 决定发射角</h4>
+            <p>准心射线先回答玩家希望命中的世界位置，武器再从 MuzzleFlash Socket 指向 HitTarget，通过 <code>(HitTarget - MuzzleLocation).Rotation()</code> 得到实际射击角度。这样既保留第三人称准心体验，也确保弹体从枪口而不是摄像机生成。</p>
+            <div class="algorithm-grid">
+              <div class="algorithm-card"><b>视差处理</b><span>摄像机与枪口不共点；先求世界目标、再由枪口重新定向，避免直接复用摄像机方向造成近距离偏移。</span></div>
+              <div class="algorithm-card"><b>散布复用</b><span>bUseScatter 以原始目标方向建立散布球，在球内采样随机点，再从枪口指向该点；输入采样方式不因武器类型改变。</span></div>
+              <div class="algorithm-card"><b>类型分派</b><span>Projectile、HitScan 与 Shotgun 共享状态、射速和网络入口，只在最终传入单个 HitTarget 或一组散布目标时分化。</span></div>
+            </div>
+          </div>
+        </div>
+    
+        <div class="deep-dive-block">
+          <span class="deep-dive-index">03</span>
+          <div class="deep-dive-content">
+            <h4>本地预测：即时表现与服务器多播互不重复</h4>
+            <p>通过 CanFire 后，开火客户端立即调用 <code>LocalFire</code>，同步播放角色 Montage、武器动画、弹壳、准心扩散脉冲并预测扣除弹药；同一输入同时调用 <code>ServerFire</code>，由服务器校验射速参数和战斗状态后执行 <code>MulticastFire</code>。</p>
+            <div class="formula-strip"><code>Input</code><span>→</span><code>LocalFire + ServerFire</code><span>→</span><code>MulticastFire</code><span>→</span><code>Remote LocalFire</code></div>
+            <div class="algorithm-grid">
+              <div class="algorithm-card"><b>多播去重</b><span>最初开火的普通客户端已执行预测；收到 Multicast 时通过 IsLocallyControlled 且非 Authority 的条件提前返回，避免动画、弹壳和扣弹执行两次。</span></div>
+              <div class="algorithm-card"><b>弹药校正</b><span>预测值用于立即刷新 HUD；服务器随后复制权威 Ammo，客户端通过 <code>OnRep_Ammo</code> 使用绝对值完成最终校正。</span></div>
+              <div class="algorithm-card"><b>观察者一致性</b><span>服务器与其他客户端仍执行多播表现，因此所有观察者都能看到同一次射击，而输入端不承担网络往返造成的操作延迟。</span></div>
+            </div>
+          </div>
+        </div>
+    
+        <div class="deep-dive-block">
+          <span class="deep-dive-index">04</span>
+          <div class="deep-dive-content">
+            <h4>连续开火：射速门控与跨状态输入意图</h4>
+            <p>每次成功射击立即令 <code>bCanFire = false</code>，并以 Weapon::FireDelay 启动计时器。<code>FireTimerFinished</code> 恢复门控后，只有按键仍被保持、武器允许 Automatic 且 CombatState 可开火时才进入下一轮，射速因此不依赖帧率或输入事件频率。</p>
+            <div class="algorithm-grid">
+              <div class="algorithm-card"><b>持续输入</b><span>bFireButtonPressed 保存“继续射击”的意图，而不是只记录一次按键事件；松开按键后，下一次 Timer 结束不会续射。</span></div>
+              <div class="algorithm-card"><b>换弹后衔接</b><span>FinishReloading 与 OnRep_CombatState 都会在回到 Unoccupied 后重试 Fire；若一条路径先成功，bCanFire 会阻止另一条重复触发。</span></div>
+              <div class="algorithm-card"><b>空弹匣换弹</b><span>最后一发完成自身 FireDelay 后再检查空弹匣并请求 Reload，保证该发的动画和射击节奏完整结束。</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Source: units/11-hit-detection-and-server-side-rewind.html -->
+    <section class="section feature-section feature-section--priority page-shell" id="unit-11" data-track-section>
+      <div class="feature-grid">
+        <div class="feature-media" data-reveal>
+          <span class="media-label">Authority / Server-Side Rewind</span>
+          <div class="diagram-stage"><div class="attachment-diagram" role="img" aria-label="命中预测与服务器回溯确认链路">
+            <div class="diagram-node"><strong>Local Candidate Hit</strong><small>HitScan Trace 或 Projectile 本地弹道</small></div><div class="diagram-arrow"></div>
+            <div class="diagram-node red"><strong>Score Request</strong><small>轨迹参数 + GetServerTime − SingleTripTime</small></div><div class="diagram-arrow"></div>
+            <div class="diagram-node"><strong>Rewind HitBoxes</strong><small>环形缓冲历史帧 + ECC_HitBox</small></div><div class="diagram-arrow"></div>
+            <div class="diagram-node"><strong>ApplyDamage</strong><small>服务器确认身体或头部命中</small></div>
+          </div></div>
+        </div>
+        <div class="feature-copy" data-reveal>
+          <div class="feature-number" aria-hidden="true">11</div>
+          <span class="micro-label">HitBox / Ring Buffer / SSR</span>
+          <h2>命中确认与服务器回溯</h2>
+          <p class="feature-summary">客户端立即预测候选命中，并将轨迹与画面对应的服务器时间提交给服务器。服务器从固定容量环形缓冲区恢复目标骨骼 HitBox，在独立 <code>ECC_HitBox</code> 通道上重放射线或弹道，确认后才调用 <code>ApplyDamage()</code>。</p>
+          <div class="tag-row"><span class="tag">Server-Side Rewind</span><span class="tag">ECC_HitBox</span><span class="tag">Ring Buffer</span><span class="tag">ServerScoreRequest</span><span class="tag">ApplyDamage</span></div>
+          <div class="compact-flow" aria-label="服务器回溯链路"><span>本地预测</span><b>→</b><span>ServerScoreRequest</span><b>→</b><span>恢复历史 HitBox</span><b>→</b><span>ApplyDamage</span></div>
+          <ul class="key-list">
+            <li><b>01</b><span>主要骨骼配置固定 BoxComponent，只在回溯阶段启用 <code>ECC_HitBox</code>，与角色胶囊和普通 Mesh 碰撞隔离。</span></li>
+            <li><b>02</b><span>历史帧只在服务器 Tick；环形缓冲区复用固定内存，固定 HitBox 数组避免 TMap/链表分配，并且不重复保存 BoxExtent。</span></li>
+            <li><b>03</b><span>客户端使用过滤后的服务器时间和平均 SingleTripTime 计算 HitTime，降低瞬时 RTT 抖动对历史帧选择的影响。</span></li>
+            <li><b>04</b><span>HitScan 通过 <code>ServerScoreRequest</code> 提交 TraceStart、HitTarget 和目标；Projectile 提交 InitialVelocity 让服务器重建历史弹道。</span></li>
+            <li><b>05</b><span>服务器先检查头部 HitBox，再检查身体 HitBox，恢复目标当前姿态和碰撞设置后，以权威 Controller 调用 <code>ApplyDamage()</code>。</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="priority-deep-dive" data-reveal>
+        <header class="deep-dive-head">
+          <span class="micro-label">Priority Unit / 11</span>
+          <div>
+            <h3>从客户端画面时间回到服务器历史姿态</h3>
+            <p>回溯不是用 RPC 抵达服务器的时刻检测当前角色，而是重建玩家开火画面对应的历史世界，再由服务器重新确认命中。</p>
+          </div>
+        </header>
+    
+        <div class="deep-dive-block">
+          <span class="deep-dive-index">01</span>
+          <div class="deep-dive-content">
+            <h4>时间同步：先确定“应该检查哪一帧”</h4>
+            <p>客户端记录请求发送时间 <code>T0</code>，服务器返回处理时刻 <code>Ts</code>，客户端在 <code>T1</code> 收到响应。由 <code>RTT = T1 - T0</code> 得到单程时延估计，再计算服务器时间偏移；开火请求最终携带 <code>HitTime = GetServerTime() - SingleTripTime</code>。</p>
+            <div class="algorithm-grid">
+              <div class="algorithm-card"><b>样本过滤</b><span>维护固定窗口的 RTT 样本，剔除无效值，按 RTT 排序后保留延迟较低的一半，再平均 SingleTripTime 与时间偏移，削弱瞬时网络抖动。</span></div>
+              <div class="algorithm-card"><b>时间语义</b><span>HitTime 对应射手看见并开火的画面；RPC 到达时间只代表网络传输结束，不能替代历史帧目标时间。</span></div>
+            </div>
+            <div class="formula-strip"><code>RTTᵢ = T1ᵢ − T0ᵢ</code><span>→</span><code>OneWayᵢ = RTTᵢ / 2</code><span>→</span><code>ServerDeltaᵢ = Tsᵢ + OneWayᵢ − T1ᵢ</code></div>
+          </div>
+        </div>
+    
+        <div class="deep-dive-block">
+          <span class="deep-dive-index">02</span>
+          <div class="deep-dive-content">
+            <h4>历史帧：环形缓冲区 + 固定 HitBox 数组</h4>
+            <p>角色的 16 个语义 HitBox 以固定索引保存头、躯干、四肢的位置与旋转。历史帧使用预分配环形缓冲区：新帧直接写入 <code>Frames[WriteIndex]</code>，索引取模前进，容量满后覆盖最旧帧，因此插入与淘汰均为 <code>O(1)</code>。</p>
+            <div class="algorithm-grid">
+              <div class="algorithm-card"><b>连续内存</b><span>固定数组替代每帧 TMap，省去 FName 哈希、节点遍历与频繁分配；稳定索引也让帧间插值可以顺序访问缓存。</span></div>
+              <div class="algorithm-card"><b>固定数据复用</b><span>BoxExtent 在初始化阶段缓存一次，历史帧只记录随时间改变的 Location 与 Rotation，减少每帧复制量。</span></div>
+              <div class="algorithm-card"><b>仅服务器记录</b><span>历史帧只服务于权威命中确认；非 Authority 实例关闭 Lag Compensation Tick，也不分配回溯缓冲区。</span></div>
+              <div class="algorithm-card"><b>碰撞隔离</b><span>回溯期间只启用 <code>ECC_HitBox</code>，普通 Capsule 与 SkeletalMesh 不参与确认，避免动画碰撞与角色移动碰撞干扰结果。</span></div>
+            </div>
+          </div>
+        </div>
+    
+        <div class="deep-dive-block">
+          <span class="deep-dive-index">03</span>
+          <div class="deep-dive-content">
+            <h4>检索与插值：在两个服务器快照之间恢复姿态</h4>
+            <p>HitTime 早于最旧历史帧时直接拒绝，晚于最新帧时使用最新数据，命中精确时间戳时直接返回对应帧；位于 Older 与 Younger 之间时，按逻辑时间顺序执行二分查找，再对每个 HitBox 的位置与旋转做插值。</p>
+            <div class="formula-strip"><code>Fraction = Clamp((HitTime - Older.Time) / (Younger.Time - Older.Time), 0, 1)</code></div>
+            <p>环形缓冲区的物理下标会回绕，但通过“最旧帧 + 逻辑偏移”映射到实际槽位，仍可保持单调时间序列并进行二分查找，避免从最新帧逐节点扫描。</p>
+          </div>
+        </div>
+    
+        <div class="deep-dive-block">
+          <span class="deep-dive-index">04</span>
+          <div class="deep-dive-content">
+            <h4>服务器确认：同一套历史姿态，两种轨迹重放</h4>
+            <p>服务器先缓存目标当前 HitBox 与 Mesh 碰撞状态，再把所有 Box 移动到历史帧。头部单独启用并执行第一次检测；未命中时再启用全身 Box。确认完成后无论结果如何都恢复当前姿态和碰撞，只有有效结果才以服务器权威 Controller 调用 <code>ApplyDamage()</code>。</p>
+            <div class="comparison-table" role="table" aria-label="射线武器与抛射物回溯比较">
+              <div class="comparison-row head" role="row"><span>阶段</span><span>HitScan</span><span>Projectile</span></div>
+              <div class="comparison-row" role="row"><b>客户端请求</b><span>目标、TraceStart、HitTarget、HitTime</span><span>目标、TraceStart、InitialVelocity、HitTime</span></div>
+              <div class="comparison-row" role="row"><b>服务器重放</b><span><code>LineTraceSingleByChannel</code> 重放瞬时射线</span><span><code>PredictProjectilePath</code> 重建带半径和模拟频率的历史弹道</span></div>
+              <div class="comparison-row" role="row"><b>网络参数</b><span><code>FVector_NetQuantize</code> 压缩起点与目标</span><span><code>FVector_NetQuantize100</code> 压缩初速度</span></div>
+              <div class="comparison-row" role="row"><b>权威结果</b><span>头部或身体确认后 ApplyDamage</span><span>历史弹道与目标 HitBox 相交后 ApplyDamage</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Source: units/12-pickup-server-spawn-and-consumption.html -->
+    <section class="section feature-section page-shell" id="unit-12" data-track-section>
+      <div class="feature-grid">
+        <div class="feature-media gif-media" data-reveal>
+          <span class="media-label">Authority Overlap / Respawn</span>
+          <img src="assets/media/pickups.gif" alt="服务器生成并循环刷新的弹药、生命和护盾拾取物">
+        </div>
+        <div class="feature-copy" data-reveal>
+          <div class="feature-number" aria-hidden="true">12</div>
+          <span class="micro-label">APickup / APickupSpawnPoint</span>
+          <h2>拾取物刷新与消费</h2>
+          <p class="feature-summary">场景 Pickup 由服务器生成并绑定 Overlap，客户端只显示复制 Actor 的旋转、描边、音效和粒子。明确的 <code>Inactive → Active → Consumed</code> 状态保证生成保护期和可拾取阶段分离，消费前先占用以阻止同帧重复触发。</p>
+          <div class="tag-row"><span class="tag">Authority Only</span><span class="tag">APickupSpawnPoint</span><span class="tag">Lifecycle</span><span class="tag">bConsumed</span><span class="tag">Destroy Replication</span></div>
+          <div class="compact-flow" aria-label="拾取物生命周期"><span>SpawnPoint Timer</span><b>→</b><span>Inactive</span><b>→</b><span>Active Overlap</span><b>→</b><span>Consumed / Destroy</span></div>
+          <ul class="key-list">
+            <li><b>01</b><span>碰撞重叠只在 Authority 绑定，客户端不能通过本地 Overlap 直接增加弹药、生命或护盾。</span></li>
+            <li><b>02</b><span><code>APickupSpawnPoint</code> 在服务器随机选择 PickupClass，并在当前 Pickup 销毁后启动下一轮随机刷新计时。</span></li>
+            <li><b>03</b><span><code>Inactive</code> 阶段关闭有效消费，Active 才开放 Sphere Overlap；Consumed 立即关闭碰撞和表现，生命周期可读且可验证。</span></li>
+            <li><b>04</b><span>回调首先检查并设置 <code>bConsumed</code>，再应用派生效果，避免多个 Pawn 在同一帧消费同一 Actor。</span></li>
+            <li><b>05</b><span>服务器 Destroy 自动同步客户端并通知 SpawnPoint；资源满值仍消耗 Pickup 的玩法规则与派生数值效果保持分离。</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Source: units/13-inventory-item-manifest-and-fragments.html -->
+    <section class="section feature-section page-shell" id="unit-13" data-track-section>
+      <div class="feature-grid">
+        <div class="feature-media" data-reveal>
+          <span class="media-label">Data Composition / StructUtils</span>
+          <div class="diagram-stage"><div class="attachment-diagram" role="img" aria-label="场景物品 Manifest 与 Fragment 数据链路">
+            <div class="diagram-node"><strong>AItem + ItemComponent</strong><small>场景 Actor 与可拾取身份</small></div><div class="diagram-arrow"></div>
+            <div class="diagram-node red"><strong>FInvItemManifest</strong><small>ItemType + TInstancedStruct Fragment 集合</small></div><div class="diagram-arrow"></div>
+            <div class="diagram-node"><strong>UInvItem</strong><small>Manifest() 创建运行时背包实例</small></div><div class="diagram-arrow"></div>
+            <div class="diagram-node"><strong>Grid / Description / Drop</strong><small>同一数据驱动布局、UI 与场景重建</small></div>
+          </div></div>
+        </div>
+        <div class="feature-copy" data-reveal>
+          <div class="feature-number" aria-hidden="true">13</div>
+          <span class="micro-label">GameplayTag / TInstancedStruct</span>
+          <h2>Manifest 与 Fragment</h2>
+          <p class="feature-summary">同一个 AItem 通过 <code>GameplayTag</code> 标识物品身份，<code>FInvItemManifest</code> 聚合尺寸、图标、堆叠、文本和行为 Fragment。<code>TInstancedStruct&lt;FInvFragment&gt;</code> 在值语义数组中保存不同派生 USTRUCT，并保留类型信息与序列化能力。</p>
+          <div class="tag-row"><span class="tag">GameplayTag</span><span class="tag">FInvItemManifest</span><span class="tag">TInstancedStruct</span><span class="tag">FInvFragment</span><span class="tag">UInvItem</span></div>
+          <div class="compact-flow" aria-label="Manifest 生命周期"><span>场景配置</span><b>→</b><span>Manifest()</span><b>→</b><span>运行时 UInvItem</span><b>→</b><span>UI / Drop 重建</span></div>
+          <ul class="key-list">
+            <li><b>01</b><span>ItemType GameplayTag 表达物品身份，FragmentTag 表达数据语义；类型和能力标签彼此独立。</span></li>
+            <li><b>02</b><span><code>FInvItemManifest</code> 是完整物品清单，场景 ItemComponent、运行时 UInvItem、描述 UI 和丢弃重建共享同一来源。</span></li>
+            <li><b>03</b><span><code>TInstancedStruct&lt;FInvFragment&gt;</code> 解决 TArray 基类值切片和裸指针所有权问题，支持异构派生 USTRUCT 的值语义存储。</span></li>
+            <li><b>04</b><span>InstancedStruct 保存实际 ScriptStruct 类型和内存，参与 UPROPERTY、Archive 与网络序列化；查询接口按类型及 Tag 安全取回 Fragment。</span></li>
+            <li><b>05</b><span>Manifest() 创建 UInvItem 并实例化 Fragment；丢弃时把运行时 Manifest 写回新场景 Actor，完成数据往返。</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Source: units/14-inventory-fast-array-replication.html -->
+    <section class="section feature-section page-shell" id="unit-14" data-track-section>
+      <div class="feature-grid">
+        <div class="feature-media" data-reveal>
+          <span class="media-label">Delta Replication / FastArray</span>
+          <div class="diagram-stage"><div class="attachment-diagram" role="img" aria-label="FastArray 背包增量复制结构">
+            <div class="diagram-node"><strong>UInvComponent</strong><small>服务器权威背包组件</small></div><div class="diagram-arrow"></div>
+            <div class="diagram-node red"><strong>FInvFastArray</strong><small>FFastArraySerializer + TArray&lt;FInvEntry&gt;</small></div><div class="diagram-arrow"></div>
+            <div class="diagram-node"><strong>Delta Replication</strong><small>稳定 ID + MarkItemDirty / MarkArrayDirty</small></div><div class="diagram-arrow"></div>
+            <div class="diagram-node"><strong>UI Callbacks</strong><small>PostReplicatedAdd / Change / Remove</small></div>
+          </div></div>
+        </div>
+        <div class="feature-copy" data-reveal>
+          <div class="feature-number" aria-hidden="true">14</div>
+          <span class="micro-label">FFastArraySerializer / Delta</span>
+          <h2>FastArray 增量复制</h2>
+          <p class="feature-summary">普通复制 TArray 在集合变化时需要重新描述数组状态；<code>FFastArraySerializer</code> 为每个 FInvEntry 维护稳定复制标识，只传输新增、修改和删除条目。条目引用的 UInvItem 作为子对象独立复制 Manifest 与堆叠数据。</p>
+          <div class="tag-row"><span class="tag">FFastArraySerializer</span><span class="tag">MarkItemDirty</span><span class="tag">Replication ID</span><span class="tag">PostReplicatedAdd</span><span class="tag">ReplicateSubobjects</span></div>
+          <div class="compact-flow" aria-label="FastArray 增量复制链路"><span>服务器修改条目</span><b>→</b><span>MarkItemDirty</span><b>→</b><span>Delta Serialize</span><b>→</b><span>复制回调刷新 UI</span></div>
+          <ul class="key-list">
+            <li><b>01</b><span>普通 TArray 更适合小型整体状态；FastArray 用稳定 ID 识别条目，即使数组下标移动也能表达同一个逻辑物品。</span></li>
+            <li><b>02</b><span>新增或修改后调用 <code>MarkItemDirty</code>，删除或重排调用 MarkArrayDirty；只有显式标脏的数据进入增量复制。</span></li>
+            <li><b>03</b><span><code>PostReplicatedAdd</code>、PostReplicatedChange 和 PreReplicatedRemove 直接把集合差异转成 Grid UI 的增删改通知。</span></li>
+            <li><b>04</b><span>FastArray 同步“有哪些 UInvItem”，<code>ReplicateSubobjects</code> 同步每个 Item 的 Manifest 和 StackCount，集合与对象数据职责分离。</span></li>
+            <li><b>05</b><span>所有条目操作从服务器权威 InventoryList 发起；客户端回调只重建展示，不反向决定背包集合。</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Source: units/15-inventory-space-query-and-grid-placement.html -->
+    <section class="section feature-section feature-section--priority page-shell" id="unit-15" data-track-section>
+      <div class="feature-grid">
+        <div class="feature-media" data-reveal>
+          <span class="media-label">2D Grid / Placement Query</span>
+          <div class="diagram-stage"><div class="attachment-diagram" role="img" aria-label="背包空间查询到 Grid 落位链路">
+            <div class="diagram-node"><strong>TryAddItem</strong><small>场景 ItemComponent 进入背包决策</small></div><div class="diagram-arrow"></div>
+            <div class="diagram-node red"><strong>HasRoomForItem</strong><small>尺寸、边界、冲突、堆叠与 TentativelyClaimed</small></div><div class="diagram-arrow"></div>
+            <div class="diagram-node"><strong>Server RPC</strong><small>AddStacksToItem 或 Server_AddNewItem</small></div><div class="diagram-arrow"></div>
+            <div class="diagram-node"><strong>FastArray → Grid</strong><small>创建 Widget 并写入全部占用格</small></div>
+          </div></div>
+        </div>
+        <div class="feature-copy" data-reveal>
+          <div class="feature-number" aria-hidden="true">15</div>
+          <span class="micro-label">TryAddItem / HasRoomForItem</span>
+          <h2>空间查询与物品落位</h2>
+          <p class="feature-summary"><code>TryAddItem</code> 从场景 ItemComponent 进入空间决策：Grid 读取 Fragment 尺寸与堆叠上限，按索引测试二维矩形并累计可接收数量。结果决定填充已有逻辑物品或创建新 FastArray 条目，随后通知 UI 在目标格生成 Widget。</p>
+          <div class="tag-row"><span class="tag">2D Bounds</span><span class="tag">TentativelyClaimed</span><span class="tag">Stack Fill</span><span class="tag">Server RPC</span><span class="tag">Grid Widget</span></div>
+          <div class="compact-flow" aria-label="拾取落位链路"><span>TryAddItem</span><b>→</b><span>HasRoomForItem</span><b>→</b><span>Server_AddNewItem</span><b>→</b><span>FastArray / Grid UI</span></div>
+          <ul class="key-list">
+            <li><b>01</b><span><code>HasRoomForItem</code> 输出 TotalRoomToFill、Remainder、bStackable 和每个 SlotAvailability，一次描述完整拾取结果。</span></li>
+            <li><b>02</b><span>IsInGridBounds 与 ForEach2D 检查多格矩形；<code>TentativelyClaimed</code> 防止同一次查询重复占用候选格。</span></li>
+            <li><b>03</b><span>同类型可堆叠物品先读取左上角 FirstGridIndex 的 StackCount，按 MaxStackSize 计算当前位置可填充量。</span></li>
+            <li><b>04</b><span>已有逻辑物品走 Server_AddStacksToItem；新物品走 <code>Server_AddNewItem</code>，由 Manifest 创建 UInvItem 并加入 FastArray。</span></li>
+            <li><b>05</b><span>PostReplicatedAdd 或本地委托调用 AddItemToIndices：创建 SlottedItem Widget、设置绘制尺寸，并把同一物品写入覆盖的全部 GridSlot。</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="priority-deep-dive" data-reveal>
+        <header class="deep-dive-head">
+          <span class="micro-label">Priority Unit / 15</span>
+          <div>
+            <h3>从场景拾取物到服务端背包与本地 Grid</h3>
+            <p>拾取不是直接创建一个 UI 图标，而是先生成一次完整的空间决策，再由服务器修改逻辑背包，最后让所有网络路径收敛到同一套 Grid 更新函数。</p>
+          </div>
+        </header>
+    
+        <div class="deep-dive-block">
+          <span class="deep-dive-index">01</span>
+          <div class="deep-dive-content">
+            <h4>TryAddItem：把一次拾取转换为确定的决策结果</h4>
+            <p><code>UInvComponent::TryAddItem</code> 接收场景中的 ItemComponent，调用 <code>HasRoomForItem</code> 获得 <code>FInvSlotAvailabilityResult</code>。结果同时携带 TotalRoomToFill、Remainder、bStackable 与 SlotAvailabilities，因此空间查询、逻辑入包和场景剩余数量使用同一份计算结果。</p>
+            <div class="algorithm-grid">
+              <div class="algorithm-card"><b>无可用空间</b><span>TotalRoomToFill 为 0 时广播 NoRoomInInventory；不发送 Server RPC、不修改 FastArray，也不销毁场景物品。</span></div>
+              <div class="algorithm-card"><b>已有逻辑物品</b><span><code>FindFirstItemByType</code> 定位同类 UInvItem，负责承载该类型的总堆叠数；它不决定 Grid 中具体放置位置。</span></div>
+              <div class="algorithm-card"><b>新增逻辑物品</b><span>不存在可复用条目时，由 Manifest 在服务端创建 UInvItem，再作为 FastArray 条目参与复制。</span></div>
+            </div>
+          </div>
+        </div>
+    
+        <div class="deep-dive-block">
+          <span class="deep-dive-index">02</span>
+          <div class="deep-dive-content">
+            <h4>二维空间搜索：边界、冲突与候选占用一次完成</h4>
+            <p>Grid 使用一维数组存储二维格子，索引转换为 <code>Index = Y * Col + X</code>，反向坐标为 <code>X = Index % Col</code>、<code>Y = Index / Col</code>。放置前同时检查列边界与行边界，避免多格物品从一行尾部错误地绕到下一行。</p>
+            <div class="formula-strip"><code>X + Width ≤ Col</code><span>AND</span><code>Y + Height ≤ Row</code><span>→</span><code>ForEach2D(StartIndex, Dimensions)</code></div>
+            <p>搜索采用 first-fit。<code>CheckedIndices</code> 记录已经确认处理过的格子；当前矩形测试期间先写入 <code>TentativelyClaimed</code>，只有整个矩形均通过约束才整体提交，任一格失败则丢弃候选集合，避免半个物品残留为已占用状态。</p>
+            <div class="algorithm-grid">
+              <div class="algorithm-card"><b>FirstGridIndex</b><span>多格物品所有覆盖格都指向同一个左上角起始格，堆叠判断和拖拽操作据此找到完整物品。</span></div>
+              <div class="algorithm-card"><b>堆叠容量</b><span><code>RoomInSlot = MaxStackSize - StackCount</code>，本格填充值取剩余拾取量与 RoomInSlot 的较小值。</span></div>
+              <div class="algorithm-card"><b>类型约束</b><span>只有 GameplayTag ItemType 完全相同、声明可堆叠且尚未达到 MaxStackSize 的物品才会贡献可填充容量。</span></div>
+            </div>
+          </div>
+        </div>
+    
+        <div class="deep-dive-block">
+          <span class="deep-dive-index">03</span>
+          <div class="deep-dive-content">
+            <h4>服务端分支：填充已有条目或创建新条目</h4>
+            <p>找到同类型且可堆叠的 UInvItem 时，先广播 OnStackChanged 更新已有格子，再调用 <code>Server_AddStacksToItem</code> 增加逻辑条目的 TotalStackCount；无需创建新的 FastArray 条目。否则调用 <code>Server_AddNewItem</code>，由 InventoryList 通过 Manifest 创建物品、注册复制子对象并执行 MarkItemDirty。</p>
+            <div class="algorithm-grid">
+              <div class="algorithm-card"><b>完全拾取</b><span><code>Remainder == 0</code> 时触发 PickedUp / OnPickedUp，场景 Actor 完成一次性消费并销毁。</span></div>
+              <div class="algorithm-card"><b>部分拾取</b><span><code>Remainder &gt; 0</code> 时只把剩余数量写回场景物品的 Stackable Fragment，Actor 继续存在，等待下一次拾取。</span></div>
+            </div>
+          </div>
+        </div>
+    
+        <div class="deep-dive-block">
+          <span class="deep-dive-index">04</span>
+          <div class="deep-dive-content">
+            <h4>复制与 UI 收敛：不同网络角色复用同一落位入口</h4>
+            <p>远端客户端收到 FastArray 增量后，由 <code>PostReplicatedAdd</code> 广播 OnItemAdded；Listen Server 与 Standalone 不会收到自己的复制回调，因此服务端新增条目后主动广播同一委托。两条路径最终都进入 <code>AddItemToIndices</code>，避免为不同网络角色维护两套 UI 逻辑。</p>
+            <div class="formula-strip"><code>MarkItemDirty</code><span>→</span><code>PostReplicatedAdd / OnItemAdded</code><span>→</span><code>AddItemAtIndex</code><span>→</span><code>UpdateGridSlots</code></div>
+            <p><code>AddItemAtIndex</code> 创建 UInvSlottedItem，按 Fragment 尺寸设置绘制区域并加入 Canvas；随后 <code>UpdateGridSlots</code> 把 InventoryItem、FirstGridIndex、可用状态和纹理写入全部覆盖格。至此服务端逻辑条目、场景剩余数量与客户端可交互 Grid 保持一致。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Source: units/16-inventory-item-interactions.html -->
+    <section class="section feature-section page-shell" id="unit-16" data-track-section>
+      <div class="feature-grid">
+        <div class="feature-media gif-media" data-reveal>
+          <span class="media-label">Grid Interaction / Server RPC</span>
+          <img src="assets/media/inventory-interactions.gif" alt="背包物品拖拽、交换、右键菜单和丢弃交互">
+        </div>
+        <div class="feature-copy" data-reveal>
+          <div class="feature-number" aria-hidden="true">16</div>
+          <span class="micro-label">HoverItem / Grid / Context Menu</span>
+          <h2>背包物品交互</h2>
+          <p class="feature-summary">UInvSlottedItem 将点击映射到逻辑物品的 <code>FirstGridIndex</code>，PickUp 后创建跟随鼠标的 HoverItem。Grid 根据鼠标象限和物品尺寸计算完整目标矩形，决定空白放置、堆叠、<code>SwapWithHoverItem</code> 或拒绝。</p>
+          <div class="tag-row"><span class="tag">FirstGridIndex</span><span class="tag">HoverItem</span><span class="tag">Region Query</span><span class="tag">Context Menu</span><span class="tag">Server RPC</span></div>
+          <div class="compact-flow" aria-label="背包交互链路"><span>点击 / FirstGridIndex</span><b>→</b><span>HoverItem 区域</span><b>→</b><span>放置 / 合并 / 交换</span><b>→</b><span>Drop / Consume RPC</span></div>
+          <ul class="key-list">
+            <li><b>01</b><span>多格物品所有 Slot 都保存相同 InventoryItem 和 <code>FirstGridIndex</code>，任意格点击都能还原左上角逻辑入口。</span></li>
+            <li><b>02</b><span>CalculateHoveredCoordinates、TileQuadrant 和 StartingCoordinate 共同确定 HoverItem 将覆盖的完整矩形，偶数尺寸拖拽仍保持直觉。</span></li>
+            <li><b>03</b><span>目标为空直接放下；同一逻辑堆叠执行全部或部分合并；覆盖一个不同物品时 <code>SwapWithHoverItem</code> 支持连续交换。</span></li>
+            <li><b>04</b><span>右键菜单按 Fragment 能力显示 Split、Drop 和 Consume；纯布局操作只改本地 Grid，数量变化才请求服务器。</span></li>
+            <li><b>05</b><span><code>Server_DropItem</code> 或 Server_ConsumeItem 扣除权威数量并标脏 FastArray；丢弃再用 Manifest 重建场景 Actor。</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <span>Blaster / UE5.4 Multiplayer Shooter</span>
+      <span>C++ · Replication · Server RPC</span>
+    </div>
+  </footer>
+</body>
+</html>

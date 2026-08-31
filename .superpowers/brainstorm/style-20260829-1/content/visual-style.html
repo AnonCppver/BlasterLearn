@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blaster Portfolio — Visual Direction</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --page: #0a0b0d;
+      --text: #f4f4f0;
+      --muted: #9399a3;
+      --line: rgba(255,255,255,.12);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 50% -20%, rgba(97,122,255,.14), transparent 38rem),
+        var(--page);
+      font-family: Inter, "Segoe UI", "Microsoft YaHei", sans-serif;
+    }
+    .shell { max-width: 1540px; margin: 0 auto; padding: 48px 34px 80px; }
+    .intro { display: grid; grid-template-columns: 1fr auto; gap: 32px; align-items: end; margin-bottom: 30px; }
+    .eyebrow { color: #778cff; font-size: 12px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; }
+    h1 { margin: 10px 0 9px; max-width: 850px; font-size: clamp(30px, 4vw, 58px); line-height: .98; letter-spacing: -.045em; }
+    .lead { margin: 0; max-width: 760px; color: #a8adb7; font-size: 15px; line-height: 1.75; }
+    .hint { color: #6f7580; font-size: 12px; text-align: right; }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 18px; }
+    .choice {
+      position: relative;
+      overflow: hidden;
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #111318;
+      cursor: pointer;
+      transition: transform .24s ease, border-color .24s ease, box-shadow .24s ease;
+    }
+    .choice:hover { transform: translateY(-5px); border-color: rgba(255,255,255,.28); box-shadow: 0 24px 70px rgba(0,0,0,.34); }
+    .choice.selected { outline: 2px solid #8fa0ff; outline-offset: 3px; }
+    .choice-tag { position: absolute; z-index: 6; top: 14px; left: 14px; padding: 6px 9px; border-radius: 999px; font: 800 10px/1 Inter, sans-serif; letter-spacing: .14em; }
+    .preview { position: relative; min-height: 470px; overflow: hidden; }
+    .preview img { display: block; width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+    .body { min-height: 186px; padding: 22px 23px 24px; }
+    .body h2 { margin: 0 0 8px; font-size: 22px; letter-spacing: -.025em; }
+    .body p { margin: 0; color: #969ca6; font-size: 13px; line-height: 1.65; }
+    .tokens { display: flex; gap: 7px; margin-top: 18px; }
+    .swatch { width: 22px; height: 22px; border-radius: 50%; border: 1px solid rgba(255,255,255,.16); }
+
+    /* A: competitive HUD */
+    .a .preview { background: #070707; font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif; }
+    .a .preview img { opacity: .43; filter: grayscale(.55) contrast(1.2); }
+    .a .preview::after { content:""; position:absolute; inset:0; background: linear-gradient(180deg, transparent 30%, #080808 96%), repeating-linear-gradient(90deg, transparent 0 39px, rgba(255,255,255,.025) 40px); }
+    .a .choice-tag { background:#f04b32; color:#100806; }
+    .hud-nav { position:absolute; z-index:2; inset:28px 26px auto; display:flex; justify-content:space-between; align-items:center; color:#efefeb; font:700 10px/1 Inter,sans-serif; letter-spacing:.18em; }
+    .hud-number { position:absolute; z-index:2; left:22px; top:84px; color:rgba(255,255,255,.16); font-size:120px; letter-spacing:-.08em; }
+    .hud-title { position:absolute; z-index:3; left:26px; right:20px; bottom:80px; font-size:50px; line-height:.84; letter-spacing:.01em; text-transform:uppercase; }
+    .hud-title em { display:block; color:#f04b32; font-style:normal; }
+    .hud-rule { position:absolute; z-index:3; left:27px; right:27px; bottom:42px; height:2px; background:linear-gradient(90deg,#f04b32 30%,rgba(255,255,255,.2) 30%); }
+
+    /* B: cinematic technical */
+    .b .preview { background:#08101c; }
+    .b .preview img { opacity:.66; filter:saturate(.55) contrast(1.08); transform:scale(1.05); }
+    .b .preview::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(4,11,24,.18),#07101e 92%), radial-gradient(circle at 65% 34%,transparent,rgba(2,7,16,.45) 70%); }
+    .b .choice-tag { background:#7be8ff; color:#04111a; }
+    .tech-nav { position:absolute; z-index:3; inset:27px 27px auto; display:flex; justify-content:space-between; color:#d8f6ff; font-size:10px; font-weight:700; letter-spacing:.16em; }
+    .tech-kicker { position:absolute; z-index:3; left:28px; bottom:166px; color:#7be8ff; font:700 10px/1 Inter,sans-serif; letter-spacing:.2em; }
+    .tech-title { position:absolute; z-index:3; left:27px; bottom:82px; max-width:360px; font-size:45px; line-height:.96; letter-spacing:-.05em; }
+    .tech-meta { position:absolute; z-index:3; left:28px; right:28px; bottom:30px; display:grid; grid-template-columns:1fr 1fr 1fr; padding-top:12px; border-top:1px solid rgba(123,232,255,.4); color:#abc2ce; font-size:9px; letter-spacing:.08em; }
+    .tech-meta b { color:#effcff; display:block; margin-bottom:4px; font-size:11px; }
+    .b { box-shadow:0 30px 100px rgba(22,91,153,.13); }
+
+    /* C: editorial archive */
+    .c { background:#e9e5dc; color:#171a1e; border-color:rgba(0,0,0,.16); }
+    .c .preview { background:#d9d4c9; }
+    .c .preview img { height:69%; top:auto; opacity:.88; filter:grayscale(.85) contrast(1.07); mix-blend-mode:multiply; }
+    .c .preview::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg,transparent 62%,rgba(233,229,220,.9)); }
+    .c .choice-tag { background:#2736d8; color:#fff; }
+    .editorial-nav { position:absolute; z-index:3; inset:29px 27px auto; display:flex; justify-content:space-between; padding-bottom:12px; border-bottom:1px solid rgba(0,0,0,.35); color:#1c2024; font:700 9px/1 Georgia,serif; letter-spacing:.12em; }
+    .editorial-index { position:absolute; z-index:3; left:27px; top:89px; color:#2736d8; font:italic 18px/1 Georgia,serif; }
+    .editorial-title { position:absolute; z-index:3; left:26px; right:24px; top:119px; font:400 47px/.9 Georgia,"Times New Roman",serif; letter-spacing:-.055em; }
+    .editorial-caption { position:absolute; z-index:3; left:27px; bottom:27px; width:77%; color:#25292e; font:12px/1.5 Georgia,serif; }
+    .c .body { border-top:1px solid rgba(0,0,0,.16); }
+    .c .body p { color:#5b5b58; }
+    .c .body h2 { font-family:Georgia,"Times New Roman",serif; font-weight:400; }
+    .recommend { display:inline-block; margin-left:7px; padding:3px 7px; border:1px solid currentColor; border-radius:99px; color:#7be8ff; font:700 9px/1 Inter,sans-serif; letter-spacing:.09em; vertical-align:4px; }
+    @media (max-width: 980px) { .grid { grid-template-columns:1fr; } .preview { min-height:420px; } .intro { grid-template-columns:1fr; } .hint{text-align:left;} }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="intro">
+      <div>
+        <div class="eyebrow">Blaster · Visual Direction 01</div>
+        <h1>先确定整站气质，再逐一设计单元。</h1>
+        <p class="lead">三种方案使用相同的准心敌友识别素材，只改变视觉语言。请比较它们是否像“游戏宣传页”、是否能承载较长技术说明，以及是否适合作为个人作品集。</p>
+      </div>
+      <div class="hint">点击卡片选择 · 可反复切换</div>
+    </section>
+
+    <section class="grid">
+      <article class="choice a" data-choice="a-competitive-hud" onclick="toggleSelect(this)">
+        <div class="choice-tag">A / COMPETITIVE</div>
+        <div class="preview">
+          <img src="crosshair.gif" alt="准心敌友识别演示">
+          <div class="hud-nav"><span>BLASTER // SYSTEMS</span><span>01—16</span></div>
+          <div class="hud-number">01</div>
+          <div class="hud-title">TARGET<em>IDENTITY</em></div>
+          <div class="hud-rule"></div>
+        </div>
+        <div class="body">
+          <h2>竞技 HUD</h2>
+          <p>高对比黑红、压缩标题、编号与分割线。第一眼最像射击游戏，但长文阅读压力较大，更适合宣传片式展示。</p>
+          <div class="tokens"><i class="swatch" style="background:#070707"></i><i class="swatch" style="background:#f04b32"></i><i class="swatch" style="background:#efefeb"></i></div>
+        </div>
+      </article>
+
+      <article class="choice b" data-choice="b-cinematic-technical" onclick="toggleSelect(this)">
+        <div class="choice-tag">B / TECHNICAL</div>
+        <div class="preview">
+          <img src="crosshair.gif" alt="准心敌友识别演示">
+          <div class="tech-nav"><span>BLASTER</span><span>NETWORKED COMBAT / UE 5.4</span></div>
+          <div class="tech-kicker">FEATURE SYSTEM · 01</div>
+          <div class="tech-title">Crosshair<br>Team Detection</div>
+          <div class="tech-meta"><span><b>TRACE</b>Visibility</span><span><b>CONTRACT</b>Interface</span><span><b>OUTPUT</b>HUD Color</span></div>
+        </div>
+        <div class="body">
+          <h2>电影式技术档案 <span class="recommend">推荐</span></h2>
+          <p>深蓝黑与克制青色强调，游戏氛围和工程表达各占一半。适合大图、流程图、代码与长篇技术说明共存。</p>
+          <div class="tokens"><i class="swatch" style="background:#07101e"></i><i class="swatch" style="background:#7be8ff"></i><i class="swatch" style="background:#effcff"></i></div>
+        </div>
+      </article>
+
+      <article class="choice c" data-choice="c-editorial-archive" onclick="toggleSelect(this)">
+        <div class="choice-tag">C / EDITORIAL</div>
+        <div class="preview">
+          <img src="crosshair.gif" alt="准心敌友识别演示">
+          <div class="editorial-nav"><span>BLASTER DEVELOPMENT ARCHIVE</span><span>UE 5.4</span></div>
+          <div class="editorial-index">Case study, no. 01</div>
+          <div class="editorial-title">Crosshair<br>recognition.</div>
+          <div class="editorial-caption">A multiplayer combat study on interface-driven identification and mesh-only visibility traces.</div>
+        </div>
+        <div class="body">
+          <h2>编辑部技术档案</h2>
+          <p>暖灰纸张、衬线标题与蓝色索引，更像建筑或工业设计作品集。长文最好读，但会明显弱化射击游戏的即时感。</p>
+          <div class="tokens"><i class="swatch" style="background:#e9e5dc"></i><i class="swatch" style="background:#2736d8"></i><i class="swatch" style="background:#171a1e"></i></div>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<section class="hero" id="top">
+  <div class="hero-copy">
+    <span class="micro-label">UE 5.4 / C++ / Multiplayer</span>
+    <h1 class="display-title">MULTIPLAYER<span class="red">SHOOTING</span>PROJECT</h1>
+    <p class="hero-intro">基于 Unreal Engine 5.4 与 C++ 实现第三人称网络射击：服务器通过 Server RPC 维护权威战斗状态，客户端负责本地瞄准、预测动画与 HUD 表现，Replication 同步关键数据，Server-Side Rewind 处理高延迟下的命中确认。</p>
+    <div class="hero-actions" aria-label="项目链接">
+      <a class="button primary" href="#" data-placeholder-link aria-disabled="true" title="GitHub 地址待补充">GitHub <span aria-hidden="true">↗</span></a>
+      <a class="button" href="#" data-placeholder-link aria-disabled="true" title="下载地址待补充">下载项目 <span aria-hidden="true">↓</span></a>
+    </div>
+  </div>
+  <div class="hero-visual logo-visual" aria-label="Unreal Engine 5.4 项目标识">
+    <img src="assets/media/ue5-mark.svg" alt="Unreal Engine 5.4 多人射击项目标识">
+  </div>
+</section>
+
+<section class="section page-shell" id="overview">
+  <div class="section-head" data-reveal>
+    <div class="section-index">00</div>
+    <h2 class="display-title section-title">核心系统</h2>
+    <p class="section-copy">CombatComponent 与 AnimInstance 处理战斗和动画，GameMode、PlayerController 与 Replication 维护服务器权威状态，GameplayTag、Manifest、FastArray 和 Grid 构成数据驱动背包。</p>
+  </div>
+
+  <div class="unit-selector" data-reveal>
+    <a class="unit-card" href="#unit-01">
+      <span class="num" aria-hidden="true">01</span>
+      <span class="type">CombatComponent / HUD</span>
+      <h3>准心敌友识别</h3>
+      <p>ECC_Visibility、接口队伍查询、PlayerState 复制与 CrosshairSpread。</p>
+    </a>
+    <a class="unit-card" href="#unit-02">
+      <span class="num" aria-hidden="true">02</span>
+      <span class="type">Character / AnimInstance</span>
+      <h3>瞄准偏移与原地转身</h3>
+      <p>AO_Yaw、Rotate Root Bone、双阈值状态与 FInterpTo。</p>
+    </a>
+    <a class="unit-card" href="#unit-03">
+      <span class="num" aria-hidden="true">03</span>
+      <span class="type">WeaponState / FABRIK</span>
+      <h3>武器附加与左手校正</h3>
+      <p>OwnerOnly、服务器装备、Socket 骨骼空间与 FABRIK。</p>
+    </a>
+    <a class="unit-card" href="#unit-04">
+      <span class="num" aria-hidden="true">04</span><span class="type">UMG / OnlineSubsystemSteam</span>
+      <h3>主菜单与 Steam Session</h3><p>GameInstanceSubsystem、异步 Delegate、MatchType 与 Travel。</p>
+    </a>
+    <a class="unit-card" href="#unit-05">
+      <span class="num" aria-hidden="true">05</span><span class="type">AWeapon / Data Driven</span>
+      <h3>武器分类与数据</h3><p>机制继承、武器身份、弹体关联与弹药职责。</p>
+    </a>
+    <a class="unit-card unit-card--priority" href="#unit-06">
+      <span class="num" aria-hidden="true">06</span><span class="type">MatchState / Time Sync</span>
+      <span class="priority-mark" aria-hidden="true">★</span>
+      <h3>比赛状态与时间同步</h3><p>服务器时间轴、样本过滤、单程延迟与本地倒计时。</p>
+    </a>
+    <a class="unit-card" href="#unit-07">
+      <span class="num" aria-hidden="true">07</span><span class="type">Replication / Buff</span>
+      <h3>生命护盾与恢复 Buff</h3><p>复合状态、OnRep、服务器恢复与按需 Tick。</p>
+    </a>
+    <a class="unit-card" href="#unit-08">
+      <span class="num" aria-hidden="true">08</span><span class="type">Game Rules / Respawn</span>
+      <h3>淘汰计分与复活</h3><p>GameMode 结算、GameState 得分、Multicast 与新 Pawn。</p>
+    </a>
+    <a class="unit-card" href="#unit-09">
+      <span class="num" aria-hidden="true">09</span><span class="type">Strategy / CombatState</span>
+      <h3>换弹策略与状态机</h3><p>Server RPC、AnimNotify、装填策略与弹药 HUD 链路。</p>
+    </a>
+    <a class="unit-card unit-card--priority" href="#unit-10">
+      <span class="num" aria-hidden="true">10</span><span class="type">Prediction / Fire Loop</span>
+      <span class="priority-mark" aria-hidden="true">★</span>
+      <h3>射击链路与输入手感</h3><p>枪口方向、本地预测、多播去重与连续开火。</p>
+    </a>
+    <a class="unit-card unit-card--priority" href="#unit-11">
+      <span class="num" aria-hidden="true">11</span><span class="type">HitBox / SSR</span>
+      <span class="priority-mark" aria-hidden="true">★</span>
+      <h3>命中确认与服务器回溯</h3><p>历史 HitBox、环形缓冲、时间校准与权威伤害确认。</p>
+    </a>
+    <a class="unit-card" href="#unit-12">
+      <span class="num" aria-hidden="true">12</span><span class="type">Pickup / Authority</span>
+      <h3>拾取物刷新与消费</h3><p>服务器 Overlap、生命周期、一次性保护与循环生成。</p>
+    </a>
+    <a class="unit-card" href="#unit-13">
+      <span class="num" aria-hidden="true">13</span><span class="type">Manifest / Fragment</span>
+      <h3>Manifest 与 Fragment</h3><p>GameplayTag、TInstancedStruct、序列化与数据组合。</p>
+    </a>
+    <a class="unit-card" href="#unit-14">
+      <span class="num" aria-hidden="true">14</span><span class="type">FastArray / Delta</span>
+      <h3>FastArray 增量复制</h3><p>稳定 ID、Dirty 标记、增量回调与子对象复制。</p>
+    </a>
+    <a class="unit-card unit-card--priority" href="#unit-15">
+      <span class="num" aria-hidden="true">15</span><span class="type">2D Grid / Placement</span>
+      <span class="priority-mark" aria-hidden="true">★</span>
+      <h3>空间查询与物品落位</h3><p>二维边界、候选占用、堆叠填充与 Grid Widget。</p>
+    </a>
+    <a class="unit-card" href="#unit-16">
+      <span class="num" aria-hidden="true">16</span><span class="type">HoverItem / Interaction</span>
+      <h3>背包物品交互</h3><p>区域检测、放置合并、连续交换与服务器丢弃。</p>
+    </a>
+  </div>
+</section>

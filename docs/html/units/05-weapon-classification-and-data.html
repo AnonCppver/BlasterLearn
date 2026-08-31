@@ -1,0 +1,23 @@
+<section class="section feature-section page-shell" id="unit-05" data-track-section>
+  <div class="feature-grid">
+    <div class="feature-media contain-media" data-reveal>
+      <span class="media-label">类型系统 / Data Driven</span>
+      <img src="assets/media/weapon-class-tree.png" alt="AWeapon、射线武器、抛射物武器与弹体类关系图">
+    </div>
+    <div class="feature-copy" data-reveal>
+      <div class="feature-number" aria-hidden="true">05</div>
+      <span class="micro-label">AWeapon / EWeaponType / EFireType</span>
+      <h2>武器分类与数据</h2>
+      <p class="feature-summary">少量 C++ 机制类通过资产配置覆盖六种武器：<code>AWeapon</code> 保存公共规格，<code>AHitScanWeapon</code> 与 <code>AProjectileWeapon</code> 区分命中机制，<code>AShotgun</code> 扩展多射线逻辑；武器身份、开火机制和生命周期状态分别建模。</p>
+      <div class="tag-row"><span class="tag">AWeapon</span><span class="tag">AHitScanWeapon</span><span class="tag">AProjectileWeapon</span><span class="tag">AProjectile</span><span class="tag">Ammo</span></div>
+      <div class="compact-flow" aria-label="武器数据关系"><span>AWeapon 规格</span><b>→</b><span>EWeaponType 身份</span><b>→</b><span>EFireType 机制</span><b>→</b><span>资产配置</span></div>
+      <ul class="key-list">
+        <li><b>01</b><span><code>AWeapon</code> 统一 Mesh、碰撞、弹药、射速、散布和表现资源，具体资产不必为每种枪新增 C++ 子类。</span></li>
+        <li><b>02</b><span><code>EWeaponType</code> 表达手枪、步枪等武器身份并索引携带弹药；<code>EFireType</code> 独立表达 HitScan、Projectile 或 Shotgun 机制。</span></li>
+        <li><b>03</b><span><code>AHitScanWeapon</code> 承担射线类公共行为，<code>AShotgun</code> 仅扩展一次生成多条散布射线的差异。</span></li>
+        <li><b>04</b><span><code>AProjectileWeapon</code> 通过 TSubclassOf 关联 <code>AProjectile</code>，弹体再派生为 AProjectileBullet 与 AProjectileRocket，二者不是武器继承链。</span></li>
+        <li><b>05</b><span>弹匣 Ammo 属于武器 Actor，携带弹药按 EWeaponType 保存在 CombatComponent；ACasing 只承担弹壳物理与销毁。</span></li>
+      </ul>
+    </div>
+  </div>
+</section>

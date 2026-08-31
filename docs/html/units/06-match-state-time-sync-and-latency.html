@@ -1,0 +1,28 @@
+<section class="section feature-section page-shell" id="unit-06" data-track-section>
+  <div class="feature-grid">
+    <div class="feature-media" data-reveal>
+      <span class="media-label">网络时钟 / Match State</span>
+      <div class="diagram-stage"><div class="attachment-diagram" role="img" aria-label="比赛状态和服务器时间同步链路">
+        <div class="diagram-node"><strong>GameMode Timeline</strong><small>WaitingToStart → InProgress → Cooldown</small></div><div class="diagram-arrow"></div>
+        <div class="diagram-node red"><strong>PlayerController</strong><small>状态、LevelStartingTime 与阶段时长</small></div><div class="diagram-arrow"></div>
+        <div class="diagram-node"><strong>Filtered Time Samples</strong><small>RTT / SingleTripTime / ClientServerDelta</small></div><div class="diagram-arrow"></div>
+        <div class="diagram-node"><strong>Local HUD Countdown</strong><small>GetServerTime() − 阶段结束时刻</small></div>
+      </div></div>
+    </div>
+    <div class="feature-copy" data-reveal>
+      <div class="feature-number" aria-hidden="true">06</div>
+      <span class="micro-label">GameMode / PlayerController / Time Sync</span>
+      <h2>比赛状态与时间同步</h2>
+      <p class="feature-summary">服务器推进 <code>WaitingToStart</code>、InProgress 和 Cooldown，客户端只接收状态与时间基准，并通过多次请求/响应估算服务器时钟。HUD 在本地根据校准后的服务器时间计算倒计时，不需要服务器每秒复制剩余秒数。</p>
+      <div class="tag-row"><span class="tag">MatchState</span><span class="tag">ClientServerDelta</span><span class="tag">SingleTripTime</span><span class="tag">Sliding Window</span><span class="tag">HUD</span></div>
+      <div class="compact-flow" aria-label="时间同步流程"><span>客户端发送时刻</span><b>→</b><span>服务器接收时刻</span><b>→</b><span>过滤 RTT 样本</span><b>→</b><span>GetServerTime</span></div>
+      <ul class="key-list">
+        <li><b>01</b><span>GameMode 只存在于服务器，PlayerController 将 MatchState 和整条比赛时间轴送到对应客户端。</span></li>
+        <li><b>02</b><span>中途加入通过 ServerCheckMatchState 补齐当前阶段、LevelStartingTime、WarmupTime、MatchTime 与 CooldownTime。</span></li>
+        <li><b>03</b><span>每次采样由请求发送时刻和回复抵达时刻得到 RTT，再估算 <code>SingleTripTime</code> 与 <code>ClientServerDelta</code>。</span></li>
+        <li><b>04</b><span>滑动窗口拒绝异常 RTT，对保留样本平均，<code>GetServerTime()</code> 使用平均时钟偏差减少倒计时与回溯时间抖动。</span></li>
+        <li><b>05</b><span>自测单程延迟服务于时钟校准；PlayerState 压缩 Ping 服务于高延迟提示，两者数据源和用途分离。</span></li>
+      </ul>
+    </div>
+  </div>
+</section>

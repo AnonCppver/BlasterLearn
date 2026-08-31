@@ -1,0 +1,23 @@
+<section class="section feature-section page-shell" id="unit-07" data-track-section>
+  <div class="feature-grid">
+    <div class="feature-media gif-media" data-reveal>
+      <span class="media-label">服务器权威 / Vital State</span>
+      <img src="assets/media/health-shield-buff.gif" alt="生命与护盾持续恢复 Buff 的游戏内表现">
+    </div>
+    <div class="feature-copy" data-reveal>
+      <div class="feature-number" aria-hidden="true">07</div>
+      <span class="micro-label">Replication / UBuffComponent</span>
+      <h2>生命护盾与恢复 Buff</h2>
+      <p class="feature-summary">服务器在一次结算中按“护盾优先、溢出扣生命”更新复合状态，再复制 <code>FReplicatedVitalState</code>。客户端的 <code>OnRep</code> 只刷新 HUD 和受击表现；持续恢复由服务器 UBuffComponent 校验参数并按需启停 Tick。</p>
+      <div class="tag-row"><span class="tag">FReplicatedVitalState</span><span class="tag">OnRep</span><span class="tag">UBuffComponent</span><span class="tag">Authority</span><span class="tag">Conditional Tick</span></div>
+      <div class="compact-flow" aria-label="生命护盾同步链路"><span>服务器结算</span><b>→</b><span>复合状态复制</span><b>→</b><span>OnRep 去重反馈</span><b>→</b><span>HUD</span></div>
+      <ul class="key-list">
+        <li><b>01</b><span>生命和护盾只由服务器修改，客户端即使篡改本地数值也不能影响权威比赛结果。</span></li>
+        <li><b>02</b><span><code>FReplicatedVitalState</code> 将 Health 与 Shield 作为同一次网络更新复制，避免两个 OnRep 跨帧产生中间状态。</span></li>
+        <li><b>03</b><span>旧值随 <code>OnRep</code> 进入客户端，HUD 刷新与受击 Montage 共用变化判断，避免监听服务器或重复复制造成反馈叠加。</span></li>
+        <li><b>04</b><span><code>UBuffComponent</code> 对恢复量、持续时间和速率做有限值与正数校验；生命和护盾达到上限后仍按既定规则消耗剩余恢复量。</span></li>
+        <li><b>05</b><span>只有存在有效 Buff 时调用 <code>SetComponentTickEnabled(true)</code>，全部恢复任务结束后停止 Tick，降低常驻组件开销。</span></li>
+      </ul>
+    </div>
+  </div>
+</section>

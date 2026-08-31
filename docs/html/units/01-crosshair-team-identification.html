@@ -1,0 +1,27 @@
+<section class="section feature-section page-shell" id="unit-01" data-track-section>
+  <div class="feature-grid">
+    <div class="feature-media gif-media" data-reveal>
+      <span class="media-label">本地 / Line Trace</span>
+      <img src="assets/media/crosshair.gif" alt="准心命中敌方角色身体时变为红色">
+    </div>
+    <div class="feature-copy" data-reveal>
+      <div class="feature-number" aria-hidden="true">01</div>
+      <span class="micro-label">CombatComponent / HUD</span>
+      <h2>准心敌友识别</h2>
+      <p class="feature-summary">本地客户端持续把屏幕中心转换为世界射线：命中敌方角色身体时准心变红，友方、场景物体或未命中时保持白色。同一份射线结果生成武器使用的 <code>HitTarget</code>，确保 HUD 反馈与射击方向来自相同的瞄准数据。</p>
+      <div class="tag-row">
+        <span class="tag">Line Trace</span><span class="tag">ECC_Visibility</span><span class="tag">Interface</span><span class="tag">PlayerState</span><span class="tag">HUD</span>
+      </div>
+      <div class="compact-flow" aria-label="准心敌友识别流程">
+        <span>屏幕中心</span><b>→</b><span>世界射线</span><b>→</b><span>接口队伍</span><b>→</b><span>HUD 颜色</span>
+      </div>
+      <ul class="key-list">
+        <li><b>01</b><span>检测只在本地控制角色上运行，不为准心颜色与扩散反馈发送额外 RPC。</span></li>
+        <li><b>02</b><span>射线使用 <code>ECC_Visibility</code>；Capsule Ignore、Skeletal Mesh Block，因此只有实际命中角色身体才会变色。</span></li>
+        <li><b>03</b><span><code>ECC_SkeletalMesh</code> 与准心检测无关，检测精度来自组件对 Visibility 的差异化 Collision Response。</span></li>
+        <li><b>04</b><span>通过 <code>IInteractWithCrosshairsInterface</code> 获取目标队伍，CombatComponent 不依赖具体角色类型；队伍数据读取自已复制的 <code>PlayerState</code>。</span></li>
+        <li><b>05</b><span>水平速度、腾空、ADS 和开火共同合成 <code>CrosshairSpread</code>，颜色与扩散参数统一写入 FHUDPackage。</span></li>
+      </ul>
+    </div>
+  </div>
+</section>

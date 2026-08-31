@@ -1,0 +1,27 @@
+<section class="section feature-section page-shell" id="unit-02" data-track-section>
+  <div class="feature-grid">
+    <div class="feature-media gif-media" data-reveal>
+      <span class="media-label">动画 / Aim Offset</span>
+      <img src="assets/media/aimspace.gif" alt="角色通过 Aim Offset 与原地转身对齐身体朝向">
+    </div>
+    <div class="feature-copy" data-reveal>
+      <div class="feature-number" aria-hidden="true">02</div>
+      <span class="micro-label">Character / AnimInstance</span>
+      <h2>瞄准偏移与原地转身</h2>
+      <p class="feature-summary">角色静止腰射时，上半身先通过 Aim Offset 跟随准心，脚部保持原方向；水平偏移超过阈值后播放左转或右转动画，并逐渐释放 Root Bone 补偿，使 Mesh 平滑追上 Actor 的真实朝向。</p>
+      <div class="tag-row">
+        <span class="tag">AO_Yaw</span><span class="tag">NormalizedDeltaRotator</span><span class="tag">Rotate Root Bone</span><span class="tag">FInterpTo</span>
+      </div>
+      <div class="compact-flow" aria-label="原地转身流程">
+        <span>记录基准</span><b>→</b><span>计算角度差</span><b>→</b><span>超过 ±90°</span><b>→</b><span>插值回正</span>
+      </div>
+      <ul class="key-list">
+        <li><b>01</b><span><code>AO_Yaw</code> 来自当前 Aim Rotation 与静止起始方向之间的水平差值，只在静止、未腾空且未 ADS 时累计。</span></li>
+        <li><b>02</b><span><code>NormalizedDeltaRotator</code> 将 Yaw 规范到 −180°～180°，跨越角度边界时仍按最短方向计算。</span></li>
+        <li><b>03</b><span><code>Rotate Root Bone</code> 只在 Animation Pose 中抵消 Actor 旋转，不修改 Capsule、控制器、服务器朝向或武器射线。</span></li>
+        <li><b>04</b><span>偏移超过 ±90°进入转身并通过 <code>FInterpTo</code> 回收到 0；开始修正时不修改 StartingAimRotation，低于 15°后才重建基准。</span></li>
+        <li><b>05</b><span>ADS 停止累计水平偏移以稳定枪械与镜头，AO_Pitch 继续更新，并把远端的 270°～360°映射回负角度。</span></li>
+      </ul>
+    </div>
+  </div>
+</section>

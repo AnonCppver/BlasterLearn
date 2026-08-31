@@ -1,0 +1,23 @@
+<section class="section feature-section page-shell" id="unit-12" data-track-section>
+  <div class="feature-grid">
+    <div class="feature-media gif-media" data-reveal>
+      <span class="media-label">Authority Overlap / Respawn</span>
+      <img src="assets/media/pickups.gif" alt="服务器生成并循环刷新的弹药、生命和护盾拾取物">
+    </div>
+    <div class="feature-copy" data-reveal>
+      <div class="feature-number" aria-hidden="true">12</div>
+      <span class="micro-label">APickup / APickupSpawnPoint</span>
+      <h2>拾取物刷新与消费</h2>
+      <p class="feature-summary">场景 Pickup 由服务器生成并绑定 Overlap，客户端只显示复制 Actor 的旋转、描边、音效和粒子。明确的 <code>Inactive → Active → Consumed</code> 状态保证生成保护期和可拾取阶段分离，消费前先占用以阻止同帧重复触发。</p>
+      <div class="tag-row"><span class="tag">Authority Only</span><span class="tag">APickupSpawnPoint</span><span class="tag">Lifecycle</span><span class="tag">bConsumed</span><span class="tag">Destroy Replication</span></div>
+      <div class="compact-flow" aria-label="拾取物生命周期"><span>SpawnPoint Timer</span><b>→</b><span>Inactive</span><b>→</b><span>Active Overlap</span><b>→</b><span>Consumed / Destroy</span></div>
+      <ul class="key-list">
+        <li><b>01</b><span>碰撞重叠只在 Authority 绑定，客户端不能通过本地 Overlap 直接增加弹药、生命或护盾。</span></li>
+        <li><b>02</b><span><code>APickupSpawnPoint</code> 在服务器随机选择 PickupClass，并在当前 Pickup 销毁后启动下一轮随机刷新计时。</span></li>
+        <li><b>03</b><span><code>Inactive</code> 阶段关闭有效消费，Active 才开放 Sphere Overlap；Consumed 立即关闭碰撞和表现，生命周期可读且可验证。</span></li>
+        <li><b>04</b><span>回调首先检查并设置 <code>bConsumed</code>，再应用派生效果，避免多个 Pawn 在同一帧消费同一 Actor。</span></li>
+        <li><b>05</b><span>服务器 Destroy 自动同步客户端并通知 SpawnPoint；资源满值仍消耗 Pickup 的玩法规则与派生数值效果保持分离。</span></li>
+      </ul>
+    </div>
+  </div>
+</section>

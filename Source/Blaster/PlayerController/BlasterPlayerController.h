@@ -180,6 +180,8 @@ private:
 	void TraceItem();
 
 	void NoRoomInInventory();
+
+	bool bIsInventoryOpen = false;
 public:
 	UFUNCTION(BlueprintCallable)
 	void ToggleInventory();

@@ -110,6 +110,6 @@ private:
     FString PathToLobby{ TEXT("") };
 
 	int32 GameModeIndex{ 0 };
-	TArray<FString> GameModes{ TEXT("FreeShooting"), TEXT("TeamShooting"), TEXT("SFE")};
+	TArray<FString> GameModes{ TEXT("FreeShooting"), TEXT("TeamShooting"), TEXT("FreeShooting")};
 	TArray<FString> GameModeDisplayNames{ TEXT("个人射击"), TEXT("团队模式"), TEXT("SFE") };
 };

@@ -1,0 +1,23 @@
+<section class="section feature-section page-shell" id="unit-08" data-track-section>
+  <div class="feature-grid">
+    <div class="feature-media gif-media" data-reveal>
+      <span class="media-label">Game Rules / Respawn</span>
+      <img src="assets/media/elimination-respawn.gif" alt="角色淘汰后延迟复活并重新获得默认武器">
+    </div>
+    <div class="feature-copy" data-reveal>
+      <div class="feature-number" aria-hidden="true">08</div>
+      <span class="micro-label">GameMode / GameState / PlayerState</span>
+      <h2>淘汰计分与复活</h2>
+      <p class="feature-summary">生命归零后由服务器 <code>ABlasterGameMode</code> 统一结算攻击者得分、受害者失败次数和团队分数，再可靠多播死亡表现。延迟结束后 RequestRespawn 销毁旧 Pawn，并让原 Controller 在出生点控制新角色。</p>
+      <div class="tag-row"><span class="tag">ABlasterGameMode</span><span class="tag">PlayerState</span><span class="tag">GameState</span><span class="tag">Reliable Multicast</span><span class="tag">RequestRespawn</span></div>
+      <div class="compact-flow" aria-label="淘汰与复活流程"><span>GameMode 结算</span><b>→</b><span>PlayerState / GameState</span><b>→</b><span>MulticastElim</span><b>→</b><span>RequestRespawn</span></div>
+      <ul class="key-list">
+        <li><b>01</b><span>GameMode 负责规则；<code>PlayerState</code> 保存个人得分和失败次数；<code>GameState</code> 维护最高分玩家与团队总分。</span></li>
+        <li><b>02</b><span>攻击者得分变化触发 Owner HUD 与得分音效，全体 PlayerController 接收淘汰公告，规则数据和表现事件分离。</span></li>
+        <li><b>03</b><span>可靠 Multicast 统一关闭移动、输入和碰撞，处理武器生命周期并播放 Dissolve/Elim 表现。</span></li>
+        <li><b>04</b><span><code>RequestRespawn</code> 仅在服务器执行：销毁旧 Character，选择 PlayerStart，再用原 Controller 创建并 Possess 新 Pawn。</span></li>
+        <li><b>05</b><span>Controller 与 PlayerState 跨复活保留；默认武器由服务器为新角色生成、设为独立销毁生命周期并完成装备复制。</span></li>
+      </ul>
+    </div>
+  </div>
+</section>

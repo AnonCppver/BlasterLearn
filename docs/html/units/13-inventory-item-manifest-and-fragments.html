@@ -1,0 +1,28 @@
+<section class="section feature-section page-shell" id="unit-13" data-track-section>
+  <div class="feature-grid">
+    <div class="feature-media" data-reveal>
+      <span class="media-label">Data Composition / StructUtils</span>
+      <div class="diagram-stage"><div class="attachment-diagram" role="img" aria-label="场景物品 Manifest 与 Fragment 数据链路">
+        <div class="diagram-node"><strong>AItem + ItemComponent</strong><small>场景 Actor 与可拾取身份</small></div><div class="diagram-arrow"></div>
+        <div class="diagram-node red"><strong>FInvItemManifest</strong><small>ItemType + TInstancedStruct Fragment 集合</small></div><div class="diagram-arrow"></div>
+        <div class="diagram-node"><strong>UInvItem</strong><small>Manifest() 创建运行时背包实例</small></div><div class="diagram-arrow"></div>
+        <div class="diagram-node"><strong>Grid / Description / Drop</strong><small>同一数据驱动布局、UI 与场景重建</small></div>
+      </div></div>
+    </div>
+    <div class="feature-copy" data-reveal>
+      <div class="feature-number" aria-hidden="true">13</div>
+      <span class="micro-label">GameplayTag / TInstancedStruct</span>
+      <h2>Manifest 与 Fragment</h2>
+      <p class="feature-summary">同一个 AItem 通过 <code>GameplayTag</code> 标识物品身份，<code>FInvItemManifest</code> 聚合尺寸、图标、堆叠、文本和行为 Fragment。<code>TInstancedStruct&lt;FInvFragment&gt;</code> 在值语义数组中保存不同派生 USTRUCT，并保留类型信息与序列化能力。</p>
+      <div class="tag-row"><span class="tag">GameplayTag</span><span class="tag">FInvItemManifest</span><span class="tag">TInstancedStruct</span><span class="tag">FInvFragment</span><span class="tag">UInvItem</span></div>
+      <div class="compact-flow" aria-label="Manifest 生命周期"><span>场景配置</span><b>→</b><span>Manifest()</span><b>→</b><span>运行时 UInvItem</span><b>→</b><span>UI / Drop 重建</span></div>
+      <ul class="key-list">
+        <li><b>01</b><span>ItemType GameplayTag 表达物品身份，FragmentTag 表达数据语义；类型和能力标签彼此独立。</span></li>
+        <li><b>02</b><span><code>FInvItemManifest</code> 是完整物品清单，场景 ItemComponent、运行时 UInvItem、描述 UI 和丢弃重建共享同一来源。</span></li>
+        <li><b>03</b><span><code>TInstancedStruct&lt;FInvFragment&gt;</code> 解决 TArray 基类值切片和裸指针所有权问题，支持异构派生 USTRUCT 的值语义存储。</span></li>
+        <li><b>04</b><span>InstancedStruct 保存实际 ScriptStruct 类型和内存，参与 UPROPERTY、Archive 与网络序列化；查询接口按类型及 Tag 安全取回 Fragment。</span></li>
+        <li><b>05</b><span>Manifest() 创建 UInvItem 并实例化 Fragment；丢弃时把运行时 Manifest 写回新场景 Actor，完成数据往返。</span></li>
+      </ul>
+    </div>
+  </div>
+</section>

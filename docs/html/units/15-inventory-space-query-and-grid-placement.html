@@ -1,0 +1,87 @@
+<section class="section feature-section feature-section--priority page-shell" id="unit-15" data-track-section>
+  <div class="feature-grid">
+    <div class="feature-media" data-reveal>
+      <span class="media-label">2D Grid / Placement Query</span>
+      <div class="diagram-stage"><div class="attachment-diagram" role="img" aria-label="背包空间查询到 Grid 落位链路">
+        <div class="diagram-node"><strong>TryAddItem</strong><small>场景 ItemComponent 进入背包决策</small></div><div class="diagram-arrow"></div>
+        <div class="diagram-node red"><strong>HasRoomForItem</strong><small>尺寸、边界、冲突、堆叠与 TentativelyClaimed</small></div><div class="diagram-arrow"></div>
+        <div class="diagram-node"><strong>Server RPC</strong><small>AddStacksToItem 或 Server_AddNewItem</small></div><div class="diagram-arrow"></div>
+        <div class="diagram-node"><strong>FastArray → Grid</strong><small>创建 Widget 并写入全部占用格</small></div>
+      </div></div>
+    </div>
+    <div class="feature-copy" data-reveal>
+      <div class="feature-number" aria-hidden="true">15</div>
+      <span class="micro-label">TryAddItem / HasRoomForItem</span>
+      <h2>空间查询与物品落位</h2>
+      <p class="feature-summary"><code>TryAddItem</code> 从场景 ItemComponent 进入空间决策：Grid 读取 Fragment 尺寸与堆叠上限，按索引测试二维矩形并累计可接收数量。结果决定填充已有逻辑物品或创建新 FastArray 条目，随后通知 UI 在目标格生成 Widget。</p>
+      <div class="tag-row"><span class="tag">2D Bounds</span><span class="tag">TentativelyClaimed</span><span class="tag">Stack Fill</span><span class="tag">Server RPC</span><span class="tag">Grid Widget</span></div>
+      <div class="compact-flow" aria-label="拾取落位链路"><span>TryAddItem</span><b>→</b><span>HasRoomForItem</span><b>→</b><span>Server_AddNewItem</span><b>→</b><span>FastArray / Grid UI</span></div>
+      <ul class="key-list">
+        <li><b>01</b><span><code>HasRoomForItem</code> 输出 TotalRoomToFill、Remainder、bStackable 和每个 SlotAvailability，一次描述完整拾取结果。</span></li>
+        <li><b>02</b><span>IsInGridBounds 与 ForEach2D 检查多格矩形；<code>TentativelyClaimed</code> 防止同一次查询重复占用候选格。</span></li>
+        <li><b>03</b><span>同类型可堆叠物品先读取左上角 FirstGridIndex 的 StackCount，按 MaxStackSize 计算当前位置可填充量。</span></li>
+        <li><b>04</b><span>已有逻辑物品走 Server_AddStacksToItem；新物品走 <code>Server_AddNewItem</code>，由 Manifest 创建 UInvItem 并加入 FastArray。</span></li>
+        <li><b>05</b><span>PostReplicatedAdd 或本地委托调用 AddItemToIndices：创建 SlottedItem Widget、设置绘制尺寸，并把同一物品写入覆盖的全部 GridSlot。</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="priority-deep-dive" data-reveal>
+    <header class="deep-dive-head">
+      <span class="micro-label">Priority Unit / 15</span>
+      <div>
+        <h3>从场景拾取物到服务端背包与本地 Grid</h3>
+        <p>拾取不是直接创建一个 UI 图标，而是先生成一次完整的空间决策，再由服务器修改逻辑背包，最后让所有网络路径收敛到同一套 Grid 更新函数。</p>
+      </div>
+    </header>
+
+    <div class="deep-dive-block">
+      <span class="deep-dive-index">01</span>
+      <div class="deep-dive-content">
+        <h4>TryAddItem：把一次拾取转换为确定的决策结果</h4>
+        <p><code>UInvComponent::TryAddItem</code> 接收场景中的 ItemComponent，调用 <code>HasRoomForItem</code> 获得 <code>FInvSlotAvailabilityResult</code>。结果同时携带 TotalRoomToFill、Remainder、bStackable 与 SlotAvailabilities，因此空间查询、逻辑入包和场景剩余数量使用同一份计算结果。</p>
+        <div class="algorithm-grid">
+          <div class="algorithm-card"><b>无可用空间</b><span>TotalRoomToFill 为 0 时广播 NoRoomInInventory；不发送 Server RPC、不修改 FastArray，也不销毁场景物品。</span></div>
+          <div class="algorithm-card"><b>已有逻辑物品</b><span><code>FindFirstItemByType</code> 定位同类 UInvItem，负责承载该类型的总堆叠数；它不决定 Grid 中具体放置位置。</span></div>
+          <div class="algorithm-card"><b>新增逻辑物品</b><span>不存在可复用条目时，由 Manifest 在服务端创建 UInvItem，再作为 FastArray 条目参与复制。</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="deep-dive-block">
+      <span class="deep-dive-index">02</span>
+      <div class="deep-dive-content">
+        <h4>二维空间搜索：边界、冲突与候选占用一次完成</h4>
+        <p>Grid 使用一维数组存储二维格子，索引转换为 <code>Index = Y * Col + X</code>，反向坐标为 <code>X = Index % Col</code>、<code>Y = Index / Col</code>。放置前同时检查列边界与行边界，避免多格物品从一行尾部错误地绕到下一行。</p>
+        <div class="formula-strip"><code>X + Width ≤ Col</code><span>AND</span><code>Y + Height ≤ Row</code><span>→</span><code>ForEach2D(StartIndex, Dimensions)</code></div>
+        <p>搜索采用 first-fit。<code>CheckedIndices</code> 记录已经确认处理过的格子；当前矩形测试期间先写入 <code>TentativelyClaimed</code>，只有整个矩形均通过约束才整体提交，任一格失败则丢弃候选集合，避免半个物品残留为已占用状态。</p>
+        <div class="algorithm-grid">
+          <div class="algorithm-card"><b>FirstGridIndex</b><span>多格物品所有覆盖格都指向同一个左上角起始格，堆叠判断和拖拽操作据此找到完整物品。</span></div>
+          <div class="algorithm-card"><b>堆叠容量</b><span><code>RoomInSlot = MaxStackSize - StackCount</code>，本格填充值取剩余拾取量与 RoomInSlot 的较小值。</span></div>
+          <div class="algorithm-card"><b>类型约束</b><span>只有 GameplayTag ItemType 完全相同、声明可堆叠且尚未达到 MaxStackSize 的物品才会贡献可填充容量。</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="deep-dive-block">
+      <span class="deep-dive-index">03</span>
+      <div class="deep-dive-content">
+        <h4>服务端分支：填充已有条目或创建新条目</h4>
+        <p>找到同类型且可堆叠的 UInvItem 时，先广播 OnStackChanged 更新已有格子，再调用 <code>Server_AddStacksToItem</code> 增加逻辑条目的 TotalStackCount；无需创建新的 FastArray 条目。否则调用 <code>Server_AddNewItem</code>，由 InventoryList 通过 Manifest 创建物品、注册复制子对象并执行 MarkItemDirty。</p>
+        <div class="algorithm-grid">
+          <div class="algorithm-card"><b>完全拾取</b><span><code>Remainder == 0</code> 时触发 PickedUp / OnPickedUp，场景 Actor 完成一次性消费并销毁。</span></div>
+          <div class="algorithm-card"><b>部分拾取</b><span><code>Remainder &gt; 0</code> 时只把剩余数量写回场景物品的 Stackable Fragment，Actor 继续存在，等待下一次拾取。</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="deep-dive-block">
+      <span class="deep-dive-index">04</span>
+      <div class="deep-dive-content">
+        <h4>复制与 UI 收敛：不同网络角色复用同一落位入口</h4>
+        <p>远端客户端收到 FastArray 增量后，由 <code>PostReplicatedAdd</code> 广播 OnItemAdded；Listen Server 与 Standalone 不会收到自己的复制回调，因此服务端新增条目后主动广播同一委托。两条路径最终都进入 <code>AddItemToIndices</code>，避免为不同网络角色维护两套 UI 逻辑。</p>
+        <div class="formula-strip"><code>MarkItemDirty</code><span>→</span><code>PostReplicatedAdd / OnItemAdded</code><span>→</span><code>AddItemAtIndex</code><span>→</span><code>UpdateGridSlots</code></div>
+        <p><code>AddItemAtIndex</code> 创建 UInvSlottedItem，按 Fragment 尺寸设置绘制区域并加入 Canvas；随后 <code>UpdateGridSlots</code> 把 InventoryItem、FirstGridIndex、可用状态和纹理写入全部覆盖格。至此服务端逻辑条目、场景剩余数量与客户端可交互 Grid 保持一致。</p>
+      </div>
+    </div>
+  </div>
+</section>

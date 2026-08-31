@@ -1,0 +1,37 @@
+<section class="section feature-section page-shell" id="unit-03" data-track-section>
+  <div class="feature-grid">
+    <div class="feature-media" data-reveal>
+      <span class="media-label">运行时 / Bone Space</span>
+      <div class="diagram-stage">
+        <div class="attachment-diagram" role="img" aria-label="右手附加武器并由武器定位左手的 FABRIK 流程">
+          <div class="diagram-node"><strong>Character Mesh</strong><small>人物右手骨骼作为枪械主锚点</small></div>
+          <div class="diagram-arrow" aria-hidden="true"></div>
+          <div class="diagram-node red"><strong>RightHandSocket → Weapon</strong><small>服务器状态确定武器附加关系</small></div>
+          <div class="diagram-arrow" aria-hidden="true"></div>
+          <div class="diagram-node"><strong>Weapon.LeftHandSocket</strong><small>World Space 转换到 RightHand Bone Space</small></div>
+          <div class="diagram-arrow" aria-hidden="true"></div>
+          <div class="diagram-node"><strong>FABRIK</strong><small>运行时求解左臂并贴合握把</small></div>
+        </div>
+      </div>
+    </div>
+    <div class="feature-copy" data-reveal>
+      <div class="feature-number" aria-hidden="true">03</div>
+      <span class="micro-label">WeaponState / FABRIK</span>
+      <h2>武器附加与左手校正</h2>
+      <p class="feature-summary">地面武器通过 Overlap 建立可拾取目标，客户端操作只发送装备请求，由服务器决定武器归属与主副槽位。主武器固定在人物右手，Weapon Asset 再反向定义左手握点，使相同 Character Skeleton 适配不同枪械。</p>
+      <div class="tag-row">
+        <span class="tag">COND_OwnerOnly</span><span class="tag">Server RPC</span><span class="tag">RightHandSocket</span><span class="tag">LeftHandSocket</span><span class="tag">FABRIK</span>
+      </div>
+      <div class="compact-flow" aria-label="武器装备与左手校正流程">
+        <span>Overlap</span><b>→</b><span>服务器装备</span><b>→</b><span>Socket 附加</span><b>→</b><span>FABRIK</span>
+      </div>
+      <ul class="key-list">
+        <li><b>01</b><span>AreaSphere 检测 Pawn，<code>OverlappingWeapon</code> 使用 <code>COND_OwnerOnly</code>，拾取提示只复制给 Character Owner。</span></li>
+        <li><b>02</b><span>客户端通过 Server RPC 表达装备意图，服务器依据权威 Overlap 结果与 CombatState 决定归属和槽位。</span></li>
+        <li><b>03</b><span>WeaponState 统一切换拾取碰撞、Physics Simulation 和 Custom Depth；主武器附加到 <code>RightHandSocket</code>，副武器附加到 BackpackSocket。</span></li>
+        <li><b>04</b><span>每把武器通过 <code>LeftHandSocket</code> 配置握点，Transform 转到 RightHand Bone Space 后由 <code>FABRIK</code> 求解左臂。</span></li>
+        <li><b>05</b><span>Reloading 时关闭 FABRIK 让 Montage 接管左手；多武器 Overlap 使用候选集合并按准心方向与距离稳定选择 FocusedWeapon。</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
